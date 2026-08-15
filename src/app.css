@@ -1,0 +1,85 @@
+@import 'tailwindcss';
+@plugin '@tailwindcss/forms';
+@plugin '@tailwindcss/typography';
+@import 'tw-animate-css';
+@import 'shadcn-svelte/tailwind.css';
+@import '@fontsource-variable/raleway';
+
+@theme inline {
+	--color-muscar-bg: var(--bg);
+	--color-muscar-card: var(--bg-card);
+	--color-muscar-card-hover: var(--bg-card-hover);
+	--color-muscar-border: var(--bg-border);
+	--color-muscar-border-strong: var(--bg-border-strong);
+	--color-muscar-surface-soft: var(--surface-soft);
+	--color-muscar-surface-hover: var(--surface-hover);
+	--color-muscar-nav: var(--nav-bg);
+	--color-muscar-grid-line: var(--grid-line);
+	--color-muscar-button-ink: var(--button-ink);
+	--color-muscar-accent: var(--accent);
+	--color-muscar-accent-dim: var(--accent-dim);
+	--color-muscar-accent-glow: var(--accent-glow);
+	--color-muscar-accent-glow-strong: var(--accent-glow-strong);
+	--color-muscar-text: var(--text-primary);
+	--color-muscar-text-secondary: var(--text-secondary);
+	--color-muscar-text-muted: var(--text-muted);
+}
+
+@layer base {
+	:root,
+	.muscar-root {
+		--bg: #100F11;
+		--bg-card: #191B20;
+		--bg-card-hover: #2E333A;
+		--bg-border: #3D434A;
+		--bg-border-strong: #60666D;
+		--surface-soft: rgba(255, 255, 255, 0.04);
+		--surface-hover: rgba(255, 255, 255, 0.06);
+		--nav-bg: rgba(16, 15, 17, 0.85);
+		--grid-line: rgba(255, 255, 255, 0.03);
+		--button-ink: #100F11;
+		--accent: #FC946D;
+		--accent-dim: #D96A44;
+		--accent-glow: rgba(252, 148, 109, 0.15);
+		--accent-glow-strong: rgba(252, 148, 109, 0.25);
+		--text-primary: #F5F4F3;
+		--text-secondary: #60666D;
+		--text-muted: #9A9DA1;
+		color-scheme: dark;
+	}
+
+	html[data-theme='light'],
+	html[data-theme='light'] .muscar-root,
+	.muscar-root[data-theme='light'] {
+		--bg: #F5F4F2;
+		--bg-card: #FFFFFF;
+		--bg-card-hover: #FDE4D9;
+		--bg-border: #9A9DA1;
+		--bg-border-strong: #60666D;
+		--surface-soft: rgba(16, 15, 17, 0.045);
+		--surface-hover: rgba(16, 15, 17, 0.075);
+		--nav-bg: rgba(245, 244, 242, 0.86);
+		--grid-line: rgba(16, 15, 17, 0.055);
+		--button-ink: #F5F4F2;
+		--accent: #782A0D;
+		--accent-dim: #D96A44;
+		--accent-glow: rgba(120, 42, 13, 0.13);
+		--accent-glow-strong: rgba(120, 42, 13, 0.22);
+		--text-primary: #100F11;
+		--text-secondary: #3D434A;
+		--text-muted: #60666D;
+		color-scheme: light;
+	}
+
+	* {
+		border-color: var(--bg-border);
+		outline-color: color-mix(in srgb, var(--accent) 50%, transparent);
+	}
+	body {
+		background: var(--bg);
+		color: var(--text-primary);
+	}
+	html {
+		font-family: var(--font-body, sans-serif);
+	}
+}

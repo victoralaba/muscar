@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<meta name="text-scale" content="scale" />
+		<meta name="color-scheme" content="dark light" />
+		<script>
+			(() => {
+				const storageKey = 'muscar-theme';
+				let savedTheme;
+
+				try {
+					savedTheme = localStorage.getItem(storageKey);
+				} catch {
+					savedTheme = null;
+				}
+
+				const prefersLight = matchMedia('(prefers-color-scheme: light)').matches;
+				const theme =
+					savedTheme === 'light' || savedTheme === 'dark'
+						? savedTheme
+						: prefersLight
+							? 'light'
+							: 'dark';
+
+				document.documentElement.dataset.theme = theme;
+				document.documentElement.style.colorScheme = theme;
+			})();
+		</script>
+		<style>
+			html,
+			body,
+			html[data-theme='dark'],
+			html[data-theme='dark'] body {
+				background: #0a0a0a;
+			}
+
+			@media (prefers-color-scheme: light) {
+				html:not([data-theme]),
+				html:not([data-theme]) body {
+					background: #f5f1e8;
+				}
+			}
+
+			html[data-theme='light'],
+			html[data-theme='light'] body {
+				background: #f5f1e8;
+			}
+		</style>
+		%sveltekit.head%
+	</head>
+	<body data-sveltekit-preload-data="hover">
+		<div style="display: contents">%sveltekit.body%</div>
+	</body>
+</html>

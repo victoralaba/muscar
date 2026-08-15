@@ -87,14 +87,13 @@
 	<header class="nav-bar">
 		<div class="nav-inner container">
 			<a href="/" class="nav-logo" aria-label="Muscar home">
-				<img src={logo} alt="Muscar" class="site-logo" />
+				<img src={logo} alt="Muscar" class="site-logo" draggable="false" />
 			</a>
 
 			<nav class="nav-links" aria-label="Primary navigation">
-				<a href="/#findings" class="nav-link">What We're Finding</a>
-				<a href="/#what-we-do" class="nav-link">What We Do</a>
-				<a href="/#process" class="nav-link">How It Works</a>
-				<a href="/#signals" class="nav-link">Early Signals</a>
+				<a href="/about" class="nav-link">About</a>
+				<a href="/newsletter" class="nav-link">Newsletter</a>
+				<a href="/contact" class="nav-link">Contact</a>
 			</nav>
 
 			<div class="nav-cta">
@@ -139,10 +138,9 @@
 		{#if mobileMenuOpen}
 			<div class="mobile-menu" role="dialog" aria-label="Mobile navigation">
 				<nav class="mobile-nav-links">
-					<a href="/#findings" class="mobile-nav-link" onclick={toggleMenu}>What We're Finding</a>
-					<a href="/#what-we-do" class="mobile-nav-link" onclick={toggleMenu}>What We Do</a>
-					<a href="/#process" class="mobile-nav-link" onclick={toggleMenu}>How It Works</a>
-					<a href="/#signals" class="mobile-nav-link" onclick={toggleMenu}>Early Signals</a>
+					<a href="/about" class="mobile-nav-link" onclick={toggleMenu}>About</a>
+					<a href="/newsletter" class="mobile-nav-link" onclick={toggleMenu}>Newsletter</a>
+					<a href="/contact" class="mobile-nav-link" onclick={toggleMenu}>Contact</a>
 				</nav>
 				<Button href="/survey" variant="default" class="cta-btn-mobile" onclick={toggleMenu}>
 					Take the Survey
@@ -161,15 +159,15 @@
 		<div class="footer-inner container">
 			<div class="footer-brand">
 				<a href="/" class="nav-logo" aria-label="Muscar home">
-					<img src={logo} alt="Muscar" class="site-logo" />
+					<img src={logo} alt="Muscar" class="site-logo" draggable="false" />
 				</a>
 				<p class="footer-tag">Cutting through the AI noise for the trades.</p>
 			</div>
 			<nav class="footer-links" aria-label="Footer navigation">
+				<a href="/about" class="footer-link">About</a>
 				<a href="/survey" class="footer-link">Survey</a>
 				<a href="/newsletter" class="footer-link">Newsletter</a>
-				<a href="/#findings" class="footer-link">Research</a>
-				<a href="mailto:hello@muscar.app" class="footer-link">Contact</a>
+				<a href="/contact" class="footer-link">Contact</a>
 			</nav>
 			<p class="footer-copy">&copy; 2026 Muscar. All rights reserved.</p>
 		</div>
@@ -179,12 +177,14 @@
 <style>
 	/* ── TOKENS ── */
 	.container { max-width: var(--max-w); margin: 0 auto; padding: 0 clamp(1.25rem, 5vw, 2.5rem); }
-	.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
 
 	.site-logo {
 		height: 1.8rem;
 		width: auto;
 		transition: filter 0.25s ease;
+		user-select: none;
+		-webkit-user-drag: none;
+		pointer-events: none;
 	}
 	.muscar-root[data-theme='dark'] .site-logo {
 		filter: invert(1);
@@ -212,12 +212,16 @@
 	}
 
 	/* ── NAV ── */
-	.nav-bar { position: sticky; top: 0; z-index: 100; background: var(--nav-bg); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-bottom: 1px solid var(--bg-border); }
+	.nav-bar { position: sticky; top: 0; z-index: 100; background: var(--nav-bg); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-bottom: 1px solid var(--bg-border); animation: nav-shadow linear both; animation-timeline: scroll(); }
+	@keyframes nav-shadow { 0% { box-shadow: 0 0 0 rgba(0,0,0,0); border-bottom-color: transparent; } 5% { box-shadow: 0 10px 30px rgba(0,0,0,0.08); border-bottom-color: var(--bg-border); } 100% { box-shadow: 0 10px 30px rgba(0,0,0,0.08); border-bottom-color: var(--bg-border); } }
 	.nav-inner { display: flex; align-items: center; height: 60px; gap: 2rem; }
-	.nav-logo { display: flex; align-items: baseline; gap: 1px; text-decoration: none; flex-shrink: 0; }
+	.nav-logo { display: flex; align-items: baseline; gap: 1px; text-decoration: none; flex-shrink: 0; transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1); }
+	.nav-logo:hover { transform: scale(1.05); }
 	.nav-links { display: flex; gap: 0.25rem; margin-left: auto; }
-	.nav-link { font-size: 0.875rem; font-weight: 400; color: var(--text-secondary); text-decoration: none; padding: 0.4rem 0.75rem; border-radius: var(--radius-sm); transition: color 0.18s, background 0.18s; }
-	.nav-link:hover { color: var(--text-primary); background: var(--surface-hover); }
+	.nav-link { position: relative; font-size: 0.875rem; font-weight: 400; color: var(--text-secondary); text-decoration: none; padding: 0.4rem 0.75rem; border-radius: var(--radius-sm); transition: color 0.25s ease; }
+	.nav-link::after { content: ''; position: absolute; bottom: 0.2rem; left: 50%; transform: translateX(-50%); width: 0; height: 2px; background: var(--accent); transition: width 0.3s cubic-bezier(0.23, 1, 0.32, 1); border-radius: 99px; }
+	.nav-link:hover { color: var(--text-primary); }
+	.nav-link:hover::after { width: 50%; }
 	.nav-cta { flex-shrink: 0; }
 	:global(.cta-btn-nav) { background: var(--accent) !important; color: var(--button-ink) !important; border-color: var(--accent) !important; font-weight: 600 !important; font-size: 0.82rem !important; display: flex !important; align-items: center !important; gap: 0.35rem !important; border-radius: var(--radius-sm) !important; }
 	:global(.cta-btn-nav:hover) { background: var(--accent-dim) !important; border-color: var(--accent-dim) !important; }

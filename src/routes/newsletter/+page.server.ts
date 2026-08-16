@@ -29,7 +29,9 @@ export const actions: Actions = {
 		const form = await request.formData();
 		const email = String(form.get('email') ?? '').trim();
 		const name = String(form.get('name') ?? '').trim();
-		const niche = String(form.get('niche') ?? '').trim();
+		const nicheSelect = String(form.get('niche') ?? '').trim();
+		const nicheOther = String(form.get('nicheOther') ?? '').trim();
+		const niche = nicheSelect === 'Other' ? nicheOther || 'Other' : nicheSelect;
 		const turnstileToken = form.get('cf-turnstile-response');
 
 		if (!isValidEmail(email)) {

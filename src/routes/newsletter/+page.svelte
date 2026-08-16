@@ -48,10 +48,15 @@
 	let name = $state('');
 	let email = $state('');
 	let niche = $state('');
+	let otherNiche = $state('');
 	let turnstileToken = $state('');
 	let submitting = $state(false);
 	let submitted = $state(false);
 	let errorMsg = $state('');
+
+	$effect(() => {
+		if (niche !== 'Other') otherNiche = '';
+	});
 
 	function isValidEmail(v: string) {
 		return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim());
@@ -164,6 +169,23 @@
 							{/each}
 						</select>
 					</div>
+
+					{#if niche === 'Other'}
+						<div class="nl-field">
+							<label class="nl-label" for="nl-niche-other"
+								>Tell us your trade <span class="nl-optional">(optional)</span></label
+							>
+							<input
+								id="nl-niche-other"
+								name="nicheOther"
+								type="text"
+								class="nl-input"
+								placeholder="e.g. Pest Control"
+								bind:value={otherNiche}
+								autocomplete="off"
+							/>
+						</div>
+					{/if}
 
 					<div class="nl-turnstile">
 						<Turnstile

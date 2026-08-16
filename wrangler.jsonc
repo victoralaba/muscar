@@ -2,6 +2,6 @@
   "$schema": "./node_modules/wrangler/config-schema.json",
   "name": "muscar",
   "compatibility_date": "2026-05-29",
-  "compatibility_flags": ["nodejs_als"],
+  "compatibility_flags": ["nodejs_compat"],
   "pages_build_output_dir": ".svelte-kit/cloudflare"
 }

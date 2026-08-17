@@ -5,6 +5,7 @@
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { IconArrowRight, IconSun, IconMoonStars, IconMenu2, IconX } from '@tabler/icons-svelte';
 	import { onMount, setContext } from 'svelte';
+	import type { LayoutProps } from './$types';
 
 	type Theme = 'dark' | 'light';
 
@@ -53,7 +54,7 @@
 		mobileMenuOpen = !mobileMenuOpen;
 	}
 
-	let { children } = $props();
+	let { children, data }: LayoutProps = $props();
 
 	onMount(() => {
 		let savedTheme;
@@ -80,6 +81,9 @@
 		href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&display=swap"
 		rel="stylesheet"
 	/>
+	{#if data.umami.scriptUrl && data.umami.websiteId}
+		<script defer src={data.umami.scriptUrl} data-website-id={data.umami.websiteId}></script>
+	{/if}
 </svelte:head>
 
 <div class="muscar-root" data-theme={themeController.theme}>

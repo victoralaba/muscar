@@ -5,6 +5,7 @@
 	import { Button } from '$lib/components/ui/button/index.js';
 	import Drawer from '$lib/components/survey/Drawer.svelte';
 	import QuestionField from '$lib/components/survey/QuestionField.svelte';
+	import Turnstile from '$lib/components/Turnstile.svelte';
 	import { surveySections, TOTAL_STEPS } from '$lib/survey/schema';
 	import { loadSurveyState, saveSurveyState, clearSurveyState } from '$lib/survey/storage';
 	import {
@@ -29,6 +30,7 @@
 	let name = $state('');
 	let email = $state('');
 	let wantsReports = $state(false);
+	let turnstileToken = $state('');
 
 	let submitting = $state(false);
 	let submitted = $state(false);
@@ -74,6 +76,7 @@
 			name = '';
 			email = '';
 			wantsReports = false;
+			turnstileToken = '';
 			clearSurveyState();
 			hasSavedProgress = false;
 		}
@@ -106,12 +109,22 @@
 			contactError = 'Please enter a valid, active email address — that\u2019s where findings go.';
 			return;
 		}
+		if (!turnstileToken) {
+			contactError = 'Please complete the verification check below.';
+			return;
+		}
 		submitting = true;
 		formEl.requestSubmit();
 	}
 
 	function handleSubmit() {
-		return async ({ result, update }: { result: ActionResult; update: (opts?: { reset?: boolean }) => Promise<void> }) => {
+		return async ({
+			result,
+			update
+		}: {
+			result: ActionResult;
+			update: (opts?: { reset?: boolean }) => Promise<void>;
+		}) => {
 			submitting = false;
 			if (result.type === 'success') {
 				submitted = true;
@@ -119,9 +132,11 @@
 			} else if (result.type === 'failure') {
 				serverError =
 					(result.data?.error as string) ??
-					"Something went wrong on our end — your answers are still here, try again in a moment.";
+					'Something went wrong on our end — your answers are still here, try again in a moment.';
+				turnstileToken = '';
 			} else if (result.type === 'error') {
 				serverError = 'Network hiccup — your answers are still here, try again in a moment.';
+				turnstileToken = '';
 			}
 			await update({ reset: false });
 		};
@@ -136,6 +151,7 @@
 		name = '';
 		email = '';
 		wantsReports = false;
+		turnstileToken = '';
 	}
 
 	const payloadJson = $derived(
@@ -205,6 +221,7 @@
 	class="visually-hidden-form"
 >
 	<input type="hidden" name="payload" value={payloadJson} />
+	<input type="hidden" name="cf-turnstile-response" value={turnstileToken} />
 </form>
 
 <Drawer
@@ -215,76 +232,77 @@
 		? undefined
 		: `Step ${step + 1} of ${TOTAL_STEPS}${currentSection?.description ? ' — ' + currentSection.description : ''}`}
 >
+	{#if submitted}
+		<div class="survey-thanks">
+			<IconMailCheck size={40} class="survey-thanks-icon" />
+			<p class="survey-thanks-title">Thanks — that's genuinely useful.</p>
+			<p class="survey-thanks-body">
+				{#if wantsReports}
+					We'll send the findings to <strong>{email}</strong> once the report's ready.
+				{:else}
+					We've got your answers. If you change your mind about the report, the newsletter's always
+					open.
+				{/if}
+			</p>
+		</div>
+	{:else if currentSection}
+		<div class="survey-progress-track" aria-hidden="true">
+			<div class="survey-progress-fill" style={`width: ${progressPct}%`}></div>
+		</div>
 
-		{#if submitted}
-			<div class="survey-thanks">
-				<IconMailCheck size={40} class="survey-thanks-icon" />
-				<p class="survey-thanks-title">Thanks — that's genuinely useful.</p>
-				<p class="survey-thanks-body">
-					{#if wantsReports}
-						We'll send the findings to <strong>{email}</strong> once the report's ready.
-					{:else}
-						We've got your answers. If you change your mind about the report, the newsletter's
-						always open.
-					{/if}
-				</p>
-			</div>
-		{:else if currentSection}
-			<div class="survey-progress-track" aria-hidden="true">
-				<div class="survey-progress-fill" style={`width: ${progressPct}%`}></div>
-			</div>
+		{#each currentSection.questions as q (q.id)}
+			<QuestionField question={q} bind:value={answers[q.id]} bind:otherValue={otherValues[q.id]} />
+		{/each}
+	{:else}
+		<div class="survey-progress-track" aria-hidden="true">
+			<div class="survey-progress-fill" style={`width: ${progressPct}%`}></div>
+		</div>
 
-			{#each currentSection.questions as q (q.id)}
-				<QuestionField
-					question={q}
-					bind:value={answers[q.id]}
-					bind:otherValue={otherValues[q.id]}
+		<div class="contact-step">
+			<div class="q-field">
+				<label class="q-label" for="survey-name">Your name <span class="q-req">*</span></label>
+				<input
+					id="survey-name"
+					type="text"
+					class="q-text-input"
+					placeholder="Jane Okafor"
+					bind:value={name}
+					autocomplete="name"
 				/>
-			{/each}
-		{:else}
-			<div class="survey-progress-track" aria-hidden="true">
-				<div class="survey-progress-fill" style={`width: ${progressPct}%`}></div>
+			</div>
+			<div class="q-field">
+				<label class="q-label" for="survey-email">Active email <span class="q-req">*</span></label>
+				<p class="q-helper">Make sure your email is active — this is where the findings go.</p>
+				<input
+					id="survey-email"
+					type="email"
+					class="q-text-input"
+					placeholder="jane@yourbusiness.com"
+					bind:value={email}
+					autocomplete="email"
+					inputmode="email"
+				/>
+			</div>
+			<label class="consent-row">
+				<input type="checkbox" bind:checked={wantsReports} />
+				<span>Send me the report when the survey findings are ready.</span>
+			</label>
+
+			<div class="turnstile-row">
+				<Turnstile
+					onVerify={(token) => (turnstileToken = token)}
+					onExpire={() => (turnstileToken = '')}
+				/>
 			</div>
 
-			<div class="contact-step">
-				<div class="q-field">
-					<label class="q-label" for="survey-name">Your name <span class="q-req">*</span></label>
-					<input
-						id="survey-name"
-						type="text"
-						class="q-text-input"
-						placeholder="Jane Okafor"
-						bind:value={name}
-						autocomplete="name"
-					/>
-				</div>
-				<div class="q-field">
-					<label class="q-label" for="survey-email">Active email <span class="q-req">*</span></label>
-					<p class="q-helper">Make sure your email is active — this is where the findings go.</p>
-					<input
-						id="survey-email"
-						type="email"
-						class="q-text-input"
-						placeholder="jane@yourbusiness.com"
-						bind:value={email}
-						autocomplete="email"
-						inputmode="email"
-					/>
-				</div>
-				<label class="consent-row">
-					<input type="checkbox" bind:checked={wantsReports} />
-					<span>Send me the report when the survey findings are ready.</span>
-				</label>
-
-				{#if contactError}
-					<p class="survey-error">{contactError}</p>
-				{/if}
-				{#if serverError}
-					<p class="survey-error">{serverError}</p>
-				{/if}
-			</div>
-		{/if}
-
+			{#if contactError}
+				<p class="survey-error">{contactError}</p>
+			{/if}
+			{#if serverError}
+				<p class="survey-error">{serverError}</p>
+			{/if}
+		</div>
+	{/if}
 
 	{#snippet footer()}
 		{#if submitted}
@@ -304,7 +322,12 @@
 						<IconArrowRight size={15} />
 					</Button>
 				{:else}
-					<Button variant="default" class="cta-primary" onclick={attemptSubmit} disabled={submitting}>
+					<Button
+						variant="default"
+						class="cta-primary"
+						onclick={attemptSubmit}
+						disabled={submitting}
+					>
 						{submitting ? 'Submitting…' : 'Submit'}
 						{#if !submitting}<IconArrowRight size={15} />{/if}
 					</Button>
@@ -484,6 +507,9 @@
 		height: 1.05rem;
 		margin-top: 0.15rem;
 		flex-shrink: 0;
+	}
+	.turnstile-row {
+		padding: 0.35rem 0.1rem 0.1rem;
 	}
 	.survey-error {
 		font-size: 0.85rem;

@@ -1,6 +1,8 @@
 import { fail, type ActionFailure } from '@sveltejs/kit';
 import postgres, { type JSONValue } from 'postgres';
-import { env as processEnv } from '$env/dynamic/private';
+import { getEnvVar } from '$lib/server/env';
+import { getBrevoEnv, upsertBrevoContact } from '$lib/server/brevo';
+import { getTurnstileSecretKey, verifyTurnstileToken } from '$lib/server/turnstile';
 import type { Actions } from './$types';
 
 interface SubmitPayload {
@@ -12,12 +14,7 @@ interface SubmitPayload {
 }
 
 function getDatabaseUrl(platform: App.Platform | undefined): string | undefined {
-	const fromEnv = processEnv.DATABASE_URL;
-	const fromPlatform =
-		typeof platform?.env === 'object' && platform.env !== null && 'DATABASE_URL' in platform.env
-			? (platform.env as unknown as { DATABASE_URL?: string }).DATABASE_URL
-			: undefined;
-	return fromEnv ?? fromPlatform;
+	return getEnvVar(platform, 'DATABASE_URL');
 }
 
 function parsePayload(raw: string): SubmitPayload | null {
@@ -51,6 +48,11 @@ export const actions: Actions = {
 			return failWith('DATABASE_URL is not configured.');
 		}
 
+		const turnstileSecret = getTurnstileSecretKey(platform);
+		if (!turnstileSecret) {
+			return failWith('TURNSTILE_SECRET_KEY is not configured.');
+		}
+
 		const form = await request.formData();
 		const raw = form.get('payload');
 		if (typeof raw !== 'string') {
@@ -65,6 +67,16 @@ export const actions: Actions = {
 		const forwarded =
 			request.headers.get('cf-connecting-ip') ?? request.headers.get('x-forwarded-for');
 		const submittedIp = forwarded?.split(',')[0]?.trim() ?? null;
+
+		const turnstileToken = form.get('cf-turnstile-response');
+		const verified = await verifyTurnstileToken(
+			typeof turnstileToken === 'string' ? turnstileToken : null,
+			turnstileSecret,
+			submittedIp
+		);
+		if (!verified) {
+			return fail(400, { error: 'Bot check failed — please retry.' });
+		}
 
 		const sql = postgres(databaseUrl, { prepare: false });
 		try {
@@ -83,6 +95,27 @@ export const actions: Actions = {
 			return failWith(err instanceof Error ? err.message : String(err));
 		} finally {
 			await sql.end({ timeout: 2 });
+		}
+
+		// Best-effort: push opted-in respondents to Brevo. A Brevo failure
+		// shouldn't fail the survey submission itself — the response is
+		// already saved above — so we just log it.
+		if (payload.wantsReports) {
+			const brevo = getBrevoEnv(platform);
+			if (brevo.apiKey) {
+				const result = await upsertBrevoContact({
+					apiKey: brevo.apiKey,
+					email: payload.email,
+					listId: brevo.surveyListId,
+					name: payload.name,
+					attributes: { SOURCE: 'survey_page' }
+				});
+				if (!result.ok) {
+					console.error('[survey] brevo upsert failed:', result.error);
+				}
+			} else {
+				console.error('[survey] BREVO_API_KEY is not configured; skipping Brevo sync.');
+			}
 		}
 
 		return { ok: true };

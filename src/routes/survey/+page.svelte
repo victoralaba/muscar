@@ -2,6 +2,8 @@
 	import { enhance } from '$app/forms';
 	import type { ActionResult } from '@sveltejs/kit';
 	import { onMount } from 'svelte';
+	import { page } from '$app/state';
+	import { trackEvent, utmEventData } from '$lib/client/analytics';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import Drawer from '$lib/components/survey/Drawer.svelte';
 	import QuestionField from '$lib/components/survey/QuestionField.svelte';
@@ -129,6 +131,10 @@
 			if (result.type === 'success') {
 				submitted = true;
 				clearSurveyState();
+				trackEvent('survey_submit', {
+					wants_reports: wantsReports,
+					...utmEventData(page.data.utm)
+				});
 			} else if (result.type === 'failure') {
 				serverError =
 					(result.data?.error as string) ??

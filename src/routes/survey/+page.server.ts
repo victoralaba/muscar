@@ -3,6 +3,7 @@ import postgres, { type JSONValue } from 'postgres';
 import { getEnvVar } from '$lib/server/env';
 import { getBrevoEnv, upsertBrevoContact } from '$lib/server/brevo';
 import { getTurnstileSecretKey, verifyTurnstileToken } from '$lib/server/turnstile';
+import { readUtm, utmToBrevoAttributes } from '$lib/server/utm';
 import type { Actions } from './$types';
 
 interface SubmitPayload {
@@ -42,7 +43,7 @@ function failWith(error: string): ActionFailure<{ error: string }> {
 }
 
 export const actions: Actions = {
-	submit: async ({ request, platform }) => {
+	submit: async ({ request, platform, cookies }) => {
 		const databaseUrl = getDatabaseUrl(platform);
 		if (!databaseUrl) {
 			return failWith('DATABASE_URL is not configured.');
@@ -78,17 +79,27 @@ export const actions: Actions = {
 			return fail(400, { error: 'Bot check failed — please retry.' });
 		}
 
+		const utm = readUtm(cookies);
+
 		const sql = postgres(databaseUrl, { prepare: false });
 		try {
 			await sql`
-				insert into survey_responses (name, email, wants_reports, answers, other_values, submitted_ip)
+				insert into survey_responses (
+					name, email, wants_reports, answers, other_values, submitted_ip,
+					utm_source, utm_medium, utm_campaign, utm_content, utm_term
+				)
 				values (
 					${payload.name},
 					${payload.email},
 					${payload.wantsReports},
 					${sql.json(payload.answers as JSONValue)},
 					${sql.json(payload.otherValues as JSONValue)},
-					${submittedIp}
+					${submittedIp},
+					${utm.utm_source ?? null},
+					${utm.utm_medium ?? null},
+					${utm.utm_campaign ?? null},
+					${utm.utm_content ?? null},
+					${utm.utm_term ?? null}
 				)
 			`;
 		} catch (err) {
@@ -108,7 +119,7 @@ export const actions: Actions = {
 					email: payload.email,
 					listId: brevo.surveyListId,
 					name: payload.name,
-					attributes: { SOURCE: 'survey_page' }
+					attributes: { SOURCE: 'survey_page', ...utmToBrevoAttributes(utm) }
 				});
 				if (!result.ok) {
 					console.error('[survey] brevo upsert failed:', result.error);

@@ -1,6 +1,8 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
 	import type { ActionResult } from '@sveltejs/kit';
+	import { page } from '$app/state';
+	import { trackEvent, utmEventData } from '$lib/client/analytics';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { Badge } from '$lib/components/ui/badge/index.js';
 	import Turnstile from '$lib/components/Turnstile.svelte';
@@ -77,6 +79,10 @@
 			submitting = false;
 			if (result.type === 'success') {
 				submitted = true;
+				trackEvent('newsletter_signup', {
+					niche: niche === 'Other' ? otherNiche || 'Other' : niche,
+					...utmEventData(page.data.utm)
+				});
 			} else if (result.type === 'failure') {
 				errorMsg =
 					(result.data as { error?: string } | undefined)?.error ??

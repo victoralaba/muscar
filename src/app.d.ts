@@ -10,7 +10,9 @@ declare global {
 		}
 
 		// interface Error {}
-		// interface Locals {}
+		interface Locals {
+			utm: import('$lib/server/utm').UtmData;
+		}
 		// interface PageData {}
 		// interface PageState {}
 	}

@@ -3,6 +3,7 @@ import postgres from 'postgres';
 import { getEnvVar } from '$lib/server/env';
 import { getBrevoEnv, upsertBrevoContact } from '$lib/server/brevo';
 import { getTurnstileSecretKey, verifyTurnstileToken } from '$lib/server/turnstile';
+import { readUtm, utmToBrevoAttributes } from '$lib/server/utm';
 import type { Actions } from './$types';
 
 function isValidEmail(v: string) {
@@ -15,7 +16,7 @@ function failWith(status: 400 | 500, error: string): ActionFailure<{ error: stri
 }
 
 export const actions: Actions = {
-	subscribe: async ({ request, platform }) => {
+	subscribe: async ({ request, platform, cookies }) => {
 		const databaseUrl = getEnvVar(platform, 'DATABASE_URL');
 		if (!databaseUrl) {
 			return failWith(500, 'DATABASE_URL is not configured.');
@@ -51,19 +52,36 @@ export const actions: Actions = {
 			return failWith(400, 'Bot check failed — please retry.');
 		}
 
+		const utm = readUtm(cookies);
+
 		const sql = postgres(databaseUrl, { prepare: false });
 		try {
 			await sql`
-				insert into newsletter_subscribers (name, email, niche, submitted_ip)
+				insert into newsletter_subscribers (
+					name, email, niche, submitted_ip,
+					utm_source, utm_medium, utm_campaign, utm_content, utm_term
+				)
 				values (
 					${name || null},
 					${email},
 					${niche || null},
-					${submittedIp}
+					${submittedIp},
+					${utm.utm_source ?? null},
+					${utm.utm_medium ?? null},
+					${utm.utm_campaign ?? null},
+					${utm.utm_content ?? null},
+					${utm.utm_term ?? null}
 				)
 				on conflict (email) do update
 				set name = coalesce(excluded.name, newsletter_subscribers.name),
-					niche = coalesce(excluded.niche, newsletter_subscribers.niche)
+					niche = coalesce(excluded.niche, newsletter_subscribers.niche),
+					-- Re-subscribing under a new campaign updates attribution to the
+					-- most recent one that brought them back.
+					utm_source = coalesce(excluded.utm_source, newsletter_subscribers.utm_source),
+					utm_medium = coalesce(excluded.utm_medium, newsletter_subscribers.utm_medium),
+					utm_campaign = coalesce(excluded.utm_campaign, newsletter_subscribers.utm_campaign),
+					utm_content = coalesce(excluded.utm_content, newsletter_subscribers.utm_content),
+					utm_term = coalesce(excluded.utm_term, newsletter_subscribers.utm_term)
 			`;
 		} catch (err) {
 			return failWith(500, err instanceof Error ? err.message : String(err));
@@ -80,7 +98,11 @@ export const actions: Actions = {
 				email,
 				listId: brevo.newsletterListId,
 				name: name || undefined,
-				attributes: { SOURCE: 'newsletter_page', NICHE: niche || undefined }
+				attributes: {
+					SOURCE: 'newsletter_page',
+					NICHE: niche || undefined,
+					...utmToBrevoAttributes(utm)
+				}
 			});
 			if (!result.ok) {
 				console.error('[newsletter] brevo upsert failed:', result.error);

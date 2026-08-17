@@ -15,6 +15,61 @@ export function getBrevoEnv(platform: App.Platform | undefined): BrevoEnv {
 	};
 }
 
+interface SendEmailArgs {
+	apiKey: string;
+	toEmail: string;
+	toName?: string;
+	fromEmail: string;
+	fromName?: string;
+	replyToEmail?: string;
+	replyToName?: string;
+	subject: string;
+	textContent: string;
+}
+
+/** Sends a transactional email via Brevo's REST API (no SDK dep). */
+export async function sendTransactionalEmail({
+	apiKey,
+	toEmail,
+	toName,
+	fromEmail,
+	fromName,
+	replyToEmail,
+	replyToName,
+	subject,
+	textContent
+}: SendEmailArgs): Promise<{ ok: true } | { ok: false; error: string }> {
+	const body = {
+		sender: { email: fromEmail, name: fromName },
+		to: [{ email: toEmail, name: toName }],
+		...(replyToEmail ? { replyTo: { email: replyToEmail, name: replyToName } } : {}),
+		subject,
+		textContent
+	};
+
+	try {
+		const res = await fetch('https://api.brevo.com/v3/smtp/email', {
+			method: 'POST',
+			headers: {
+				'content-type': 'application/json',
+				accept: 'application/json',
+				'api-key': apiKey
+			},
+			body: JSON.stringify(body)
+		});
+
+		if (res.ok) return { ok: true };
+
+		const payload = (await res.json().catch(() => null)) as { message?: string } | null;
+		const message = payload?.message ?? `Brevo email request failed with status ${res.status}`;
+		console.error('[brevo] send email failed:', message);
+		return { ok: false, error: message };
+	} catch (err) {
+		const message = err instanceof Error ? err.message : String(err);
+		console.error('[brevo] send email threw:', message);
+		return { ok: false, error: message };
+	}
+}
 interface UpsertContactArgs {
 	apiKey: string;
 	email: string;

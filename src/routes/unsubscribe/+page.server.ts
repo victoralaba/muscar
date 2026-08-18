@@ -2,6 +2,7 @@ import { fail, type ActionFailure } from '@sveltejs/kit';
 import postgres from 'postgres';
 import { getEnvVar } from '$lib/server/env';
 import { getBrevoEnv, unsubscribeBrevoContact } from '$lib/server/brevo';
+import { getTurnstileSecretKey, verifyTurnstileToken } from '$lib/server/turnstile';
 import type { Actions, PageServerLoad } from './$types';
 
 function isValidEmail(v: string) {
@@ -80,6 +81,31 @@ export const actions: Actions = {
 			if (!isValidEmail(manualEmail)) {
 				return failWith(400, 'Please enter a valid email address.');
 			}
+
+			// No token means we're trusting a typed-in email with nothing to
+			// prove it belongs to the requester — that's exactly the "guess
+			// an address, unsubscribe someone else" path a token closes off.
+			// Turnstile doesn't fix that on its own, but it stops the low-effort
+			// version: scripting a sweep of addresses through this form.
+			const turnstileSecret = getTurnstileSecretKey(platform);
+			if (!turnstileSecret) {
+				return failWith(500, 'TURNSTILE_SECRET_KEY is not configured.');
+			}
+
+			const turnstileToken = form.get('cf-turnstile-response');
+			const forwarded =
+				request.headers.get('cf-connecting-ip') ?? request.headers.get('x-forwarded-for');
+			const submittedIp = forwarded?.split(',')[0]?.trim() ?? null;
+
+			const verified = await verifyTurnstileToken(
+				typeof turnstileToken === 'string' ? turnstileToken : null,
+				turnstileSecret,
+				submittedIp
+			);
+			if (!verified) {
+				return failWith(400, 'Bot check failed — please retry.');
+			}
+
 			email = manualEmail;
 		}
 

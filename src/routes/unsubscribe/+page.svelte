@@ -3,6 +3,7 @@
 	import type { ActionResult } from '@sveltejs/kit';
 	import { trackEvent } from '$lib/client/analytics';
 	import { Button } from '$lib/components/ui/button/index.js';
+	import Turnstile from '$lib/components/Turnstile.svelte';
 	import { IconMailOff, IconCheck, IconArrowLeft } from '@tabler/icons-svelte';
 	import type { PageProps } from './$types';
 
@@ -20,11 +21,18 @@
 	let stage: 'form' | 'confirm' | 'success' = $state(data.token ? 'confirm' : 'form');
 	let submitting = $state(false);
 	let errorMsg = $state('');
+	// Only the manual (no-token) path needs this — someone arriving via a
+	// real unsubscribe link already carries proof of identity in the token.
+	let turnstileToken = $state('');
 
 	function goToConfirm() {
 		errorMsg = '';
 		if (!isValidEmail(email)) {
 			errorMsg = 'Please enter a valid email address.';
+			return;
+		}
+		if (!turnstileToken) {
+			errorMsg = 'Please complete the verification check below.';
 			return;
 		}
 		stage = 'confirm';
@@ -42,8 +50,10 @@
 				errorMsg =
 					(result.data as { error?: string } | undefined)?.error ??
 					'Something went wrong. Try again.';
+				turnstileToken = '';
 			} else if (result.type === 'error') {
 				errorMsg = 'Something went wrong. Try again.';
+				turnstileToken = '';
 			}
 		};
 	}
@@ -90,6 +100,7 @@
 					>
 						<input type="hidden" name="token" value={token} />
 						<input type="hidden" name="email" value={email} />
+						<input type="hidden" name="cf-turnstile-response" value={turnstileToken} />
 						{#if errorMsg}
 							<p class="un-error">{errorMsg}</p>
 						{/if}
@@ -128,6 +139,12 @@
 							autocomplete="email"
 							inputmode="email"
 							required
+						/>
+					</div>
+					<div class="un-turnstile">
+						<Turnstile
+							onVerify={(t) => (turnstileToken = t)}
+							onExpire={() => (turnstileToken = '')}
 						/>
 					</div>
 					{#if errorMsg}
@@ -238,6 +255,10 @@
 	:global(.un-submit) {
 		width: 100% !important;
 		justify-content: center !important;
+	}
+
+	.un-turnstile {
+		margin-top: 0.1rem;
 	}
 
 	.un-error {

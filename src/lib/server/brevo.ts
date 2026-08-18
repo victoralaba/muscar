@@ -70,6 +70,51 @@ export async function sendTransactionalEmail({
 		return { ok: false, error: message };
 	}
 }
+/**
+ * Blacklists a contact from marketing emails via Brevo's REST API directly
+ * (no SDK dep). This is what "unsubscribe" means in Brevo — the contact
+ * stays on its lists but Brevo will no longer send it campaign email.
+ *
+ * Note: per Brevo's docs, updating a blacklisted contact's *email address*
+ * later will silently remove the blacklist, so nothing else should ever
+ * PUT a new email over this contact.
+ */
+export async function unsubscribeBrevoContact({
+	apiKey,
+	email
+}: {
+	apiKey: string;
+	email: string;
+}): Promise<{ ok: true } | { ok: false; error: string }> {
+	try {
+		const res = await fetch(`https://api.brevo.com/v3/contacts/${encodeURIComponent(email)}`, {
+			method: 'PUT',
+			headers: {
+				'content-type': 'application/json',
+				accept: 'application/json',
+				'api-key': apiKey
+			},
+			body: JSON.stringify({ emailBlacklisted: true })
+		});
+
+		// Brevo returns 204 on success. A 404 means the contact was never in
+		// Brevo to begin with — treat that as a successful no-op rather than
+		// an error, since the end state the user wants (no email from us) is
+		// already true.
+		if (res.ok || res.status === 204) return { ok: true };
+		if (res.status === 404) return { ok: true };
+
+		const payload = (await res.json().catch(() => null)) as { message?: string } | null;
+		const message = payload?.message ?? `Brevo request failed with status ${res.status}`;
+		console.error('[brevo] unsubscribe failed:', message);
+		return { ok: false, error: message };
+	} catch (err) {
+		const message = err instanceof Error ? err.message : String(err);
+		console.error('[brevo] unsubscribe threw:', message);
+		return { ok: false, error: message };
+	}
+}
+
 interface UpsertContactArgs {
 	apiKey: string;
 	email: string;

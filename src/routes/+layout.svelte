@@ -172,6 +172,9 @@
 				<a href="/survey" class="footer-link">Survey</a>
 				<a href="/newsletter" class="footer-link">Newsletter</a>
 				<a href="/contact" class="footer-link">Contact</a>
+				<a href="/unsubscribe" class="footer-link">Unsubscribe</a>
+				<a href="/terms" class="footer-link">Terms</a>
+				<a href="/privacy" class="footer-link">Privacy</a>
 			</nav>
 			<p class="footer-copy">&copy; 2026 Muscar. All rights reserved.</p>
 		</div>

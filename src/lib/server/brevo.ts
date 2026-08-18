@@ -121,6 +121,14 @@ interface UpsertContactArgs {
 	listId?: string;
 	name?: string;
 	attributes?: Record<string, unknown>;
+	/**
+	 * Explicitly set Brevo's blacklist flag. Pass `false` on any call that
+	 * represents an active, intentional subscribe (e.g. the newsletter form)
+	 * so a resubscribe after a prior unsubscribe actually clears suppression
+	 * — Brevo does not clear this on its own just because other fields on
+	 * the contact are being updated. Omit to leave the existing flag alone.
+	 */
+	emailBlacklisted?: boolean;
 }
 
 /**
@@ -134,7 +142,8 @@ export async function upsertBrevoContact({
 	email,
 	listId,
 	name,
-	attributes = {}
+	attributes = {},
+	emailBlacklisted
 }: UpsertContactArgs): Promise<{ ok: true } | { ok: false; error: string }> {
 	const firstName = name?.trim().split(/\s+/)[0];
 
@@ -142,6 +151,7 @@ export async function upsertBrevoContact({
 		email,
 		updateEnabled: true,
 		listIds: listId ? [Number(listId)] : undefined,
+		...(emailBlacklisted !== undefined ? { emailBlacklisted } : {}),
 		attributes: {
 			...(firstName ? { FIRSTNAME: firstName } : {}),
 			...(name ? { LASTNAME: name.trim().split(/\s+/).slice(1).join(' ') || undefined } : {}),

@@ -12,10 +12,12 @@
 		return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim());
 	}
 
-	let email = $state(data.prefillEmail);
-	// If we arrived with a valid ?email= param, skip straight to the
-	// confirmation step instead of making the person retype it.
-	let stage: 'form' | 'confirm' | 'success' = $state(data.prefillEmail ? 'confirm' : 'form');
+	let email = $state(data.email);
+	let token = data.token;
+	// If we arrived with a valid ?token= param that resolved to a real
+	// subscriber, skip straight to the confirmation step instead of making
+	// the person retype their email.
+	let stage: 'form' | 'confirm' | 'success' = $state(data.token ? 'confirm' : 'form');
 	let submitting = $state(false);
 	let errorMsg = $state('');
 
@@ -86,6 +88,7 @@
 						use:enhance={handleSubmit}
 						class="un-confirm-actions"
 					>
+						<input type="hidden" name="token" value={token} />
 						<input type="hidden" name="email" value={email} />
 						{#if errorMsg}
 							<p class="un-error">{errorMsg}</p>

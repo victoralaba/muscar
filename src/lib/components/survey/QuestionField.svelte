@@ -218,6 +218,7 @@
 					class:is-over={dragOver === idx}
 					draggable="true"
 					role="option"
+					tabindex="0"
 					aria-selected="false"
 					aria-label={`${idx + 1}. ${rankItemMap[itemValue]}`}
 					ondragstart={() => onDragStart(idx)}

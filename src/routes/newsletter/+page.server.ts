@@ -121,7 +121,7 @@ export const actions: Actions = {
 				// silently keep suppressing campaigns after someone resubscribes.
 				emailBlacklisted: false,
 				attributes: {
-					SOURCE: 'newsletter_page',
+					SOURCE: 'newsletter',
 					NICHE: niche || undefined,
 					...utmToBrevoAttributes(utm)
 				}

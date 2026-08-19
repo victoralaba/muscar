@@ -119,7 +119,7 @@ export const actions: Actions = {
 					email: payload.email,
 					listId: brevo.surveyListId,
 					name: payload.name,
-					attributes: { SOURCE: 'survey_page', ...utmToBrevoAttributes(utm) }
+					attributes: { SOURCE: 'survey', ...utmToBrevoAttributes(utm) }
 				});
 				if (!result.ok) {
 					console.error('[survey] brevo upsert failed:', result.error);

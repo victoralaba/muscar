@@ -4,7 +4,12 @@ import { getEnvVar } from '$lib/server/env';
 import { getBrevoEnv, upsertBrevoContact } from '$lib/server/brevo';
 import { getTurnstileSecretKey, verifyTurnstileToken } from '$lib/server/turnstile';
 import { readUtm, utmToBrevoAttributes } from '$lib/server/utm';
+import { surveySections } from '$lib/survey/schema';
 import type { Actions } from './$types';
+
+const TRADE_OPTIONS = surveySections
+	.flatMap((section) => section.questions)
+	.find((q) => q.id === 'trade')?.options ?? [];
 
 interface SubmitPayload {
 	name: string;
@@ -16,6 +21,24 @@ interface SubmitPayload {
 
 function getDatabaseUrl(platform: App.Platform | undefined): string | undefined {
 	return getEnvVar(platform, 'DATABASE_URL');
+}
+
+/**
+ * Resolves the 'trade' answer to a human-readable niche string for Brevo,
+ * mirroring how the newsletter form's niche already looks (e.g. "HVAC").
+ * Falls back to the free-text "Other" value, and if that's missing too,
+ * to whatever raw value was submitted (defensive against schema drift).
+ */
+function resolveNiche(payload: SubmitPayload): string | undefined {
+	const tradeValue = payload.answers['trade'];
+	if (typeof tradeValue !== 'string' || !tradeValue) return undefined;
+
+	const matched = TRADE_OPTIONS.find((opt) => opt.value === tradeValue);
+	if (matched) return matched.label;
+
+	// Not a known option value — likely "Other". Prefer the free-text
+	// answer if present, otherwise fall back to the raw submitted value.
+	return payload.otherValues['trade'] || tradeValue;
 }
 
 function parsePayload(raw: string): SubmitPayload | null {
@@ -119,7 +142,11 @@ export const actions: Actions = {
 					email: payload.email,
 					listId: brevo.surveyListId,
 					name: payload.name,
-					attributes: { SOURCE: 'survey', ...utmToBrevoAttributes(utm) }
+					attributes: {
+						SOURCE: 'survey',
+						NICHE: resolveNiche(payload),
+						...utmToBrevoAttributes(utm)
+					}
 				});
 				if (!result.ok) {
 					console.error('[survey] brevo upsert failed:', result.error);

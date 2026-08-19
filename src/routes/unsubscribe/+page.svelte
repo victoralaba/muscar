@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
+	import { untrack } from 'svelte';
 	import type { ActionResult } from '@sveltejs/kit';
 	import { trackEvent } from '$lib/client/analytics';
 	import { Button } from '$lib/components/ui/button/index.js';
@@ -13,12 +14,12 @@
 		return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim());
 	}
 
-	let email = $state(data.email);
-	let token = data.token;
+	let email = $state(untrack(() => data.email));
+	let token = $derived(data.token);
 	// If we arrived with a valid ?token= param that resolved to a real
 	// subscriber, skip straight to the confirmation step instead of making
 	// the person retype their email.
-	let stage: 'form' | 'confirm' | 'success' = $state(data.token ? 'confirm' : 'form');
+	let stage: 'form' | 'confirm' | 'success' = $state(untrack(() => (data.token ? 'confirm' : 'form')));
 	let submitting = $state(false);
 	let errorMsg = $state('');
 	// Only the manual (no-token) path needs this — someone arriving via a

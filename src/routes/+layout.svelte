@@ -239,24 +239,35 @@
 		top: 0;
 		z-index: 100;
 		background: var(--nav-bg);
-		backdrop-filter: blur(16px);
-		-webkit-backdrop-filter: blur(16px);
-		border-bottom: 1px solid var(--bg-border);
+		/*
+		 * Frosted-glass nav: stronger blur so page content actually shows
+		 * through as a soft wash, saturate to keep colors vivid rather than
+		 * grey, and a hairline top border of subtle contrast that catches
+		 * light like the edge of a pane of glass.
+		 */
+		backdrop-filter: blur(20px) saturate(160%);
+		-webkit-backdrop-filter: blur(20px) saturate(160%);
+		border-bottom: 1px solid var(--nav-border);
+		box-shadow: inset 0 1px 0 var(--nav-border);
 		animation: nav-shadow linear both;
 		animation-timeline: scroll();
 	}
 	@keyframes nav-shadow {
 		0% {
-			box-shadow: 0 0 0 rgba(0, 0, 0, 0);
-			border-bottom-color: transparent;
+			box-shadow: inset 0 1px 0 var(--nav-border);
+			border-bottom-color: var(--nav-border);
 		}
 		5% {
-			box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
-			border-bottom-color: var(--bg-border);
+			box-shadow:
+				inset 0 1px 0 var(--nav-border),
+				0 10px 30px rgba(0, 0, 0, 0.12);
+			border-bottom-color: var(--nav-border);
 		}
 		100% {
-			box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
-			border-bottom-color: var(--bg-border);
+			box-shadow:
+				inset 0 1px 0 var(--nav-border),
+				0 10px 30px rgba(0, 0, 0, 0.12);
+			border-bottom-color: var(--nav-border);
 		}
 	}
 	.nav-inner {

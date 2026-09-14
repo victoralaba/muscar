@@ -235,55 +235,21 @@
 	main {
 		flex: 1;
 		overflow-x: clip;
+		/* Offsets the now `position: fixed` nav, which no longer reserves
+		 * this space in normal flow. Matches .nav-inner's 60px height plus
+		 * the nav's 1px border-bottom. */
+		padding-top: 61px;
 	}
 
-	/* ── NAV ──
-	 *
-	 * Frosted-glass nav.
-	 *
-	 * `backdrop-filter` applied directly to the sticky <header> was silently
-	 * being dropped by Chromium in this compositing setup (transparency
-	 * showed through, blur did not). The workaround: put the glass on a
-	 * ::before pseudo-element that fills the header, and let the header
-	 * itself stay background-transparent. The pseudo forms its own
-	 * compositing layer so `backdrop-filter` applies there reliably.
-	 * `isolation: isolate` on the header keeps the pseudo's z-index: -1
-	 * from escaping and hiding the whole nav behind the page.
-	 */
+	/* ── NAV ── plain opaque header, fixed to the top. */
 	.nav-bar {
-		position: sticky;
+		position: fixed;
 		top: 0;
+		left: 0;
+		right: 0;
 		z-index: 100;
-		background: transparent;
+		background: var(--bg);
 		border-bottom: 1px solid var(--nav-border);
-		isolation: isolate;
-		animation: nav-shadow linear both;
-		animation-timeline: scroll();
-	}
-	.nav-bar::before {
-		content: '';
-		position: absolute;
-		inset: 0;
-		z-index: -1;
-		background: linear-gradient(180deg, var(--nav-bg-sheen), transparent 55%), var(--nav-bg);
-		backdrop-filter: blur(24px) saturate(180%);
-		-webkit-backdrop-filter: blur(24px) saturate(180%);
-		box-shadow: inset 0 1px 0 var(--nav-border);
-		pointer-events: none;
-	}
-	@keyframes nav-shadow {
-		0% {
-			box-shadow: 0 0 0 rgba(0, 0, 0, 0);
-			border-bottom-color: transparent;
-		}
-		5% {
-			box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
-			border-bottom-color: var(--nav-border);
-		}
-		100% {
-			box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
-			border-bottom-color: var(--nav-border);
-		}
 	}
 	.nav-inner {
 		display: flex;

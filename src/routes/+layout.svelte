@@ -97,6 +97,7 @@
 			<nav class="nav-links" aria-label="Primary navigation">
 				<a href="/about" class="nav-link">About</a>
 				<a href="/service" class="nav-link">Service</a>
+				<a href="/case-studies" class="nav-link">Case Studies</a>
 				<a href="/newsletter" class="nav-link">Newsletter</a>
 				<a href="/contact" class="nav-link">Contact</a>
 			</nav>
@@ -147,6 +148,7 @@
 				<nav class="mobile-nav-links">
 					<a href="/about" class="mobile-nav-link" onclick={toggleMenu}>About</a>
 					<a href="/service" class="mobile-nav-link" onclick={toggleMenu}>Service</a>
+					<a href="/case-studies" class="mobile-nav-link" onclick={toggleMenu}>Case Studies</a>
 					<a href="/newsletter" class="mobile-nav-link" onclick={toggleMenu}>Newsletter</a>
 					<a href="/contact" class="mobile-nav-link" onclick={toggleMenu}>Contact</a>
 				</nav>
@@ -174,6 +176,7 @@
 			<nav class="footer-links" aria-label="Footer navigation">
 				<a href="/about" class="footer-link">About</a>
 				<a href="/service" class="footer-link">Service</a>
+				<a href="/case-studies" class="footer-link">Case Studies</a>
 				<a href="/survey" class="footer-link">Survey</a>
 				<a href="/newsletter" class="footer-link">Newsletter</a>
 				<a href="/contact" class="footer-link">Contact</a>

@@ -28,46 +28,46 @@
 @layer base {
 	:root,
 	.muscar-root {
-		--bg: #100F11;
-		--bg-card: #191B20;
-		--bg-card-hover: #2E333A;
-		--bg-border: #3D434A;
-		--bg-border-strong: #60666D;
+		--bg: #100f11;
+		--bg-card: #191b20;
+		--bg-card-hover: #2e333a;
+		--bg-border: #3d434a;
+		--bg-border-strong: #60666d;
 		--surface-soft: rgba(255, 255, 255, 0.04);
 		--surface-hover: rgba(255, 255, 255, 0.06);
 		--nav-bg: rgba(16, 15, 17, 0.85);
 		--grid-line: rgba(255, 255, 255, 0.03);
-		--button-ink: #100F11;
-		--accent: #FC946D;
-		--accent-dim: #D96A44;
+		--button-ink: #100f11;
+		--accent: #fc946d;
+		--accent-dim: #d96a44;
 		--accent-glow: rgba(252, 148, 109, 0.15);
 		--accent-glow-strong: rgba(252, 148, 109, 0.25);
-		--text-primary: #F5F4F3;
-		--text-secondary: #60666D;
-		--text-muted: #9A9DA1;
+		--text-primary: #f5f4f3;
+		--text-secondary: #60666d;
+		--text-muted: #9a9da1;
 		color-scheme: dark;
 	}
 
 	html[data-theme='light'],
 	html[data-theme='light'] .muscar-root,
 	.muscar-root[data-theme='light'] {
-		--bg: #F5F4F2;
-		--bg-card: #FFFFFF;
-		--bg-card-hover: #FDE4D9;
-		--bg-border: #9A9DA1;
-		--bg-border-strong: #60666D;
+		--bg: #f5f4f2;
+		--bg-card: #ffffff;
+		--bg-card-hover: #fde4d9;
+		--bg-border: #9a9da1;
+		--bg-border-strong: #60666d;
 		--surface-soft: rgba(16, 15, 17, 0.045);
 		--surface-hover: rgba(16, 15, 17, 0.075);
 		--nav-bg: rgba(245, 244, 242, 0.86);
 		--grid-line: rgba(16, 15, 17, 0.055);
-		--button-ink: #F5F4F2;
-		--accent: #782A0D;
-		--accent-dim: #D96A44;
+		--button-ink: #f5f4f2;
+		--accent: #782a0d;
+		--accent-dim: #d96a44;
 		--accent-glow: rgba(120, 42, 13, 0.13);
 		--accent-glow-strong: rgba(120, 42, 13, 0.22);
-		--text-primary: #100F11;
-		--text-secondary: #3D434A;
-		--text-muted: #60666D;
+		--text-primary: #100f11;
+		--text-secondary: #3d434a;
+		--text-muted: #60666d;
 		color-scheme: light;
 	}
 
@@ -82,4 +82,46 @@
 	html {
 		font-family: var(--font-body, sans-serif);
 	}
+}
+
+/*
+ * Shared brand CTA styling. These classes are applied to <Button /> instances
+ * across pages; keeping the rules here (instead of duplicating :global(...)
+ * inside every page's <style>) means new pages inherit the brand look without
+ * repeating the definition.
+ */
+.cta-primary {
+	background: var(--accent) !important;
+	color: var(--button-ink) !important;
+	border-color: var(--accent) !important;
+	font-weight: 600 !important;
+	display: inline-flex !important;
+	align-items: center !important;
+	gap: 0.4rem !important;
+	border-radius: 10px !important;
+	transition:
+		background 0.18s,
+		transform 0.15s !important;
+}
+.cta-primary:hover {
+	background: var(--accent-dim) !important;
+	border-color: var(--accent-dim) !important;
+	transform: translateY(-1px) !important;
+}
+
+.cta-secondary {
+	background: transparent !important;
+	color: var(--text-primary) !important;
+	border-color: var(--bg-border-strong) !important;
+	font-weight: 600 !important;
+	border-radius: 10px !important;
+	transition:
+		border-color 0.18s,
+		background 0.18s,
+		transform 0.15s !important;
+}
+.cta-secondary:hover {
+	border-color: var(--accent) !important;
+	background: var(--accent-glow) !important;
+	transform: translateY(-1px) !important;
 }

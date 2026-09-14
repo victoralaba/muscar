@@ -69,16 +69,27 @@
 </div>
 
 <style>
+	/*
+	 * Editorial break-out: the Scrolly is typically embedded in a narrow
+	 * prose column, but the two-column pinned pattern needs more room.
+	 * These rules widen the block to a viewport-relative width and center
+	 * it against the viewport, so we can keep prose narrow while the
+	 * scrollytelling gets space to breathe.
+	 */
 	.scrolly {
 		position: relative;
 		display: grid;
 		grid-template-columns: 1fr 1fr;
 		gap: clamp(1.5rem, 4vw, 3rem);
-		margin: clamp(2rem, 5vw, 3.5rem) 0;
+		margin-block: clamp(2rem, 5vw, 3.5rem);
+		width: min(1080px, calc(100vw - 2rem));
+		margin-inline: auto;
+		margin-left: 50%;
+		transform: translateX(-50%);
 	}
 	.scrolly-sticky {
 		position: sticky;
-		top: 6rem;
+		top: 5rem;
 		align-self: start;
 		height: min(70vh, 480px);
 		display: flex;
@@ -133,10 +144,14 @@
 	@media (max-width: 800px) {
 		.scrolly {
 			grid-template-columns: 1fr;
+			width: min(720px, calc(100vw - 2rem));
 		}
 		.scrolly-sticky {
-			position: static;
-			height: clamp(260px, 55vw, 400px);
+			/* On mobile the sticky still sticks (as a pinned band above the
+			 * beats) so viewers see the visual change as they scroll each
+			 * step, rather than losing it above the fold. */
+			top: 4.5rem;
+			height: clamp(240px, 45vh, 320px);
 		}
 		.scrolly-steps {
 			gap: 2rem;

@@ -1,0 +1,187 @@
+---
+slug: halden-hvac
+title: Halden HVAC & Refrigeration
+trade: HVAC + light commercial refrigeration
+teamSize: 12 people
+region: Springfield, MO
+engagementLength: 14 weeks
+headlineResult: 6.2 → 0.4 days from job done to invoice sent
+summary: >
+  A 39-year-old family HVAC and refrigeration shop was losing hours after
+  dinner, missing a third of its incoming calls, and shipping quotes days
+  late. The engagement never installed an "AI platform." It rewired the
+  process, then let AI in only where it earned the seat.
+publishedAt: 2026-09-14
+illustrative: true
+---
+
+<script>
+	import Metric from '$lib/case-study/components/Metric.svelte';
+	import MetricRow from '$lib/case-study/components/MetricRow.svelte';
+	import Quote from '$lib/case-study/components/Quote.svelte';
+	import BeforeAfter from '$lib/case-study/components/BeforeAfter.svelte';
+	import Timeline from '$lib/case-study/components/Timeline.svelte';
+	import Callout from '$lib/case-study/components/Callout.svelte';
+	import LineChart from '$lib/case-study/components/LineChart.svelte';
+	import Scrolly from '$lib/case-study/components/Scrolly.svelte';
+	import ShopMap from '$lib/case-study/components/ShopMap.svelte';
+
+	const phases = [
+		{
+			label: 'Phase 1',
+			weeks: 'Weeks 1–4',
+			title: 'Digitalize',
+			body: 'Everything the shop knew that lived on paper, in a notebook, on the whiteboard, or in the owner’s head got moved into one system the whole team could see.',
+			items: [
+				'Migrated 18 years of customer and asset history into Jobber (a lighter fit than the ServiceTitan attempt from 2019).',
+				'Retired the dispatcher’s morning whiteboard rewrite. The schedule now lives in one place and updates in real time.',
+				'Built a pricing library so quotes stop being retyped from memory.'
+			]
+		},
+		{
+			label: 'Phase 2',
+			weeks: 'Weeks 5–10',
+			title: 'Automate',
+			body: 'Once the work lived somewhere a machine could read, we handed the boring parts over.',
+			items: [
+				'Tech marks a job "done" in the field. Invoice goes out that same hour.',
+				'Unaccepted quotes get an email at 48h, a text at day 5, a call reminder at day 12. Nothing falls off.',
+				'After-hours calls route to the on-call tech with an SMS ping and a short voice summary.',
+				'Weekly ops report auto-compiles Sunday night, in the owner’s inbox Monday at 6am.'
+			]
+		},
+		{
+			label: 'Phase 3',
+			weeks: 'Weeks 11–14',
+			title: 'AI, where it earned it',
+			body: 'Two AI pieces went in. Two others were considered and dropped after the shop looked at what they would actually change.',
+			items: [
+				'Installed: AI phone-answering for emergency triage. Routes to on-call tech or books next-day, in the owner’s voice profile.',
+				'Installed: AI quote first-draft. Tech dictates site notes on the drive back, gets a first-pass quote to review, edits, sends.',
+				'Dropped: website chatbot. The team read 40 sample transcripts from vendor demos and could not find one they would send a customer.',
+				'Dropped: AI-generated marketing copy. Marcus felt it sounded like everyone else’s marketing copy, which is fair.'
+			]
+		}
+	];
+
+	// Monthly average, days from job completion to invoice sent. The step
+	// change lands in weeks 5-6 when the field-to-invoice loop closed.
+	const jobToInvoiceMonthly = [
+		{ x: new Date(2026, 0, 1), y: 6.2 },
+		{ x: new Date(2026, 1, 1), y: 5.9 },
+		{ x: new Date(2026, 2, 1), y: 5.3 },
+		{ x: new Date(2026, 3, 1), y: 1.8 },
+		{ x: new Date(2026, 4, 1), y: 0.9 },
+		{ x: new Date(2026, 5, 1), y: 0.4 },
+		{ x: new Date(2026, 6, 1), y: 0.4 }
+	];
+
+	const beats = [
+		{
+			title: 'Where we started',
+			body: 'Five workflow areas ran on paper, on a whiteboard, or from the owner’s memory. Nothing talked to anything else.'
+		},
+		{
+			title: 'Weeks 1–4: the schedule, the quotes, the invoices come first',
+			body: 'These three get digitalized before anything else. Without them, nothing downstream is worth automating and nothing AI-adjacent has anywhere to sit.'
+		},
+		{
+			title: 'Weeks 5–10: hand off the boring parts',
+			body: 'Field-to-invoice loop closes automatically. Follow-ups run themselves. After-hours calls stop dying in voicemail.'
+		},
+		{
+			title: 'Weeks 11–14: AI, only where it earned it',
+			body: 'Phone triage and quote drafting go in because the shop already had somewhere to put them. Two other AI pitches were considered and dropped.'
+		},
+		{
+			title: 'Fourteen weeks in',
+			body: 'The owner is out of the after-hours phone loop. Invoices go out same day. Quote-to-close rate is up. Nothing on the board is still "on paper."'
+		}
+	];
+</script>
+
+## The shop
+
+Halden HVAC & Refrigeration has been running out of a small yard on the north side of Springfield since 1987. Marcus Halden took it over from his father in 2011. Twelve people on payroll: Marcus, an office manager, a dispatcher, four senior techs, three juniors, two apprentices, one estimator who also runs commercial installs. About sixty percent residential, forty percent light commercial (small restaurants, one grocery chain, a couple of manufacturers).
+
+They had already tried the software route. ServiceTitan came in 2019, went back out in 2021 because the interface was faster than the shop could absorb and nobody had time to babysit the migration. Since then the schedule was a whiteboard the dispatcher rewrote every morning, customer history was half in Excel and half in Marcus's head, and quotes got hand-written in the truck and typed up at night. Some quotes took three or four days to send.
+
+<Callout title="Illustrative case">
+
+Halden HVAC & Refrigeration is a composite shop, not a real client. Every metric, quote, and workflow beat below is written from patterns Muscar has seen in the field, sized to a plausible twelve-person operation, and labeled clearly. When we ship a real case, this label comes off and the numbers get replaced with the actual ones.
+
+</Callout>
+
+## Where the hours were going
+
+<MetricRow label="Before (measured in the audit week)">
+	<Metric value="6.2" unit="days" label="Job done to invoice sent" context="Averaged over the previous six months." />
+	<Metric value="34%" label="Missed calls, work hours" context="Went to voicemail. Techs checked when they could." />
+	<Metric value="3.1" unit="days" label="Site visit to quote sent" context="Some ran a full week." />
+	<Metric value="22%" label="Follow-up rate on stale quotes" context="Anything past 48 hours mostly fell off." />
+	<Metric value="~380" unit="hrs / yr" label="Marcus’s admin time" context="Almost all of it after 8pm." />
+</MetricRow>
+
+Nothing on that list is unusual for a shop this size that has run on paper for a long time. The hours after dinner are the ones that stand out to the owner. Marcus had stopped answering the phone at 8pm because there was nothing he could do with the calls that came in.
+
+## What the engagement did
+
+The order of operations is the argument. Nothing was installed in phase three that phase one hadn't made possible.
+
+<Scrolly {beats}>
+	{#snippet visual({ index })}
+		<ShopMap step={index} />
+	{/snippet}
+</Scrolly>
+
+## Fourteen weeks of the field-to-invoice loop closing
+
+The chart below is one dimension out of many. It happens to be the one Marcus watches, because it is the one that used to eat his nights.
+
+<LineChart
+	data={jobToInvoiceMonthly}
+	yLabel="Job done to invoice sent"
+	yUnit="days, monthly average"
+	xLabel="Engagement timeline"
+	markers={[
+		{ x: new Date(2026, 2, 15), label: 'Phase 1 → 2' },
+		{ x: new Date(2026, 4, 15), label: 'Phase 2 → 3' }
+	]}
+	caption="Illustrative composite data. Real cases will show the shop’s actual weekly rollup."
+/>
+
+## The phases, in order
+
+<Timeline {phases} />
+
+## What changed, measured the same way
+
+<MetricRow label="After (measured in the fourteenth week)">
+	<Metric value="0.4" unit="days" label="Job done to invoice sent" context="Down from 6.2. Same-day for most jobs." />
+	<Metric value="4%" label="Missed calls, work hours" context="After-hours goes through triage; work-hours dispatch caught the rest." />
+	<Metric value="0.6" unit="days" label="Site visit to quote sent" context="Techs draft in the truck, review, send. Same day for most." />
+	<Metric value="100%" label="Follow-up rate on stale quotes" context="Automated sequence runs 48h, day 5, day 12." />
+	<Metric value="~140" unit="hrs / yr" label="Marcus’s admin time" context="Down from 380. Most of it now Sunday review of the Monday brief." />
+</MetricRow>
+
+<BeforeAfter
+	label="One workflow, one honest comparison"
+	before="Dispatcher rewrites the schedule every morning on a whiteboard. Techs photograph it for the day."
+	after="One live schedule. Every tech sees changes in the field. Dispatcher spends the recovered hour on parts orders."
+	beforeSub="~5 hrs / week of manual rewriting."
+	afterSub="~0 hrs / week."
+/>
+
+## What we did not install
+
+The pieces that stayed out matter as much as the pieces that went in. The team looked at a website chatbot for two afternoons and could not find a single sample transcript from vendor demos that they would have wanted a Halden customer to receive. Same story for AI-generated marketing content: Marcus read three drafts, said they read like every other HVAC page in Missouri, and asked us to skip it. Those were the right calls. The point of the engagement was not "install more AI." It was to make the shop run cleanly enough that the AI we did install had a chance of being useful.
+
+<Quote
+	body="I stopped answering the phone at 8pm because there was nothing I could do about the calls that came in. Now the system handles them and I sleep."
+	attribution="Marcus Halden, owner"
+	illustrative
+/>
+
+## The point the shop wanted made
+
+Marcus put it plainly in the final review: what changed was not that the shop got smarter. What changed was that the pieces the shop already knew how to do stopped falling on the floor between them. AI helped in two specific places. The rest of the recovered hours came from the paper going away.

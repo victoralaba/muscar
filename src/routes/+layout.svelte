@@ -237,44 +237,51 @@
 		overflow-x: clip;
 	}
 
-	/* ── NAV ── */
+	/* ── NAV ──
+	 *
+	 * Frosted-glass nav.
+	 *
+	 * `backdrop-filter` applied directly to the sticky <header> was silently
+	 * being dropped by Chromium in this compositing setup (transparency
+	 * showed through, blur did not). The workaround: put the glass on a
+	 * ::before pseudo-element that fills the header, and let the header
+	 * itself stay background-transparent. The pseudo forms its own
+	 * compositing layer so `backdrop-filter` applies there reliably.
+	 * `isolation: isolate` on the header keeps the pseudo's z-index: -1
+	 * from escaping and hiding the whole nav behind the page.
+	 */
 	.nav-bar {
 		position: sticky;
 		top: 0;
 		z-index: 100;
-		/*
-		 * Frosted-glass nav. Two layers of background:
-		 *   1) A diagonal "sheen" gradient that catches light on the top-left,
-		 *      the way real glass panes do.
-		 *   2) The base tinted color at low alpha so the content behind the
-		 *      nav actually shows through the blur.
-		 * `backdrop-filter: blur(...) saturate(...)` is what turns the pass-through
-		 * into a frosted look; saturate is the ingredient that keeps colors from
-		 * greying out.
-		 */
-		background: linear-gradient(180deg, var(--nav-bg-sheen), transparent 55%), var(--nav-bg);
-		backdrop-filter: blur(24px) saturate(180%);
-		-webkit-backdrop-filter: blur(24px) saturate(180%);
+		background: transparent;
 		border-bottom: 1px solid var(--nav-border);
-		box-shadow: inset 0 1px 0 var(--nav-border);
+		isolation: isolate;
 		animation: nav-shadow linear both;
 		animation-timeline: scroll();
 	}
+	.nav-bar::before {
+		content: '';
+		position: absolute;
+		inset: 0;
+		z-index: -1;
+		background: linear-gradient(180deg, var(--nav-bg-sheen), transparent 55%), var(--nav-bg);
+		backdrop-filter: blur(24px) saturate(180%);
+		-webkit-backdrop-filter: blur(24px) saturate(180%);
+		box-shadow: inset 0 1px 0 var(--nav-border);
+		pointer-events: none;
+	}
 	@keyframes nav-shadow {
 		0% {
-			box-shadow: inset 0 1px 0 var(--nav-border);
-			border-bottom-color: var(--nav-border);
+			box-shadow: 0 0 0 rgba(0, 0, 0, 0);
+			border-bottom-color: transparent;
 		}
 		5% {
-			box-shadow:
-				inset 0 1px 0 var(--nav-border),
-				0 10px 30px rgba(0, 0, 0, 0.12);
+			box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
 			border-bottom-color: var(--nav-border);
 		}
 		100% {
-			box-shadow:
-				inset 0 1px 0 var(--nav-border),
-				0 10px 30px rgba(0, 0, 0, 0.12);
+			box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
 			border-bottom-color: var(--nav-border);
 		}
 	}

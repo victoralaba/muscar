@@ -77,10 +77,9 @@
 <style>
 	.shop-map {
 		width: 100%;
-		height: 100%;
 		display: flex;
 		flex-direction: column;
-		gap: 1rem;
+		gap: 0.85rem;
 	}
 	.shop-map-head {
 		display: flex;
@@ -108,8 +107,6 @@
 		display: flex;
 		flex-direction: column;
 		gap: 0.35rem;
-		flex: 1;
-		justify-content: center;
 	}
 	.shop-map-row {
 		display: grid;

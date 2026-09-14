@@ -35,7 +35,7 @@
 		--bg-border-strong: #60666d;
 		--surface-soft: rgba(255, 255, 255, 0.04);
 		--surface-hover: rgba(255, 255, 255, 0.06);
-		--nav-bg: rgba(16, 15, 17, 0.35);
+		--nav-bg: rgba(16, 15, 17, 0.8);
 		--nav-bg-sheen: rgba(255, 255, 255, 0.06);
 		--nav-border: rgba(255, 255, 255, 0.1);
 		--grid-line: rgba(255, 255, 255, 0.03);
@@ -60,7 +60,7 @@
 		--bg-border-strong: #60666d;
 		--surface-soft: rgba(16, 15, 17, 0.045);
 		--surface-hover: rgba(16, 15, 17, 0.075);
-		--nav-bg: rgba(245, 244, 242, 0.45);
+		--nav-bg: rgba(245, 244, 242, 0.82);
 		--nav-bg-sheen: rgba(255, 255, 255, 0.4);
 		--nav-border: rgba(16, 15, 17, 0.1);
 		--grid-line: rgba(16, 15, 17, 0.055);

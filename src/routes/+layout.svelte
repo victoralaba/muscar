@@ -235,24 +235,34 @@
 	main {
 		flex: 1;
 		overflow-x: clip;
+		/* Offsets the now `position: fixed` nav, which no longer reserves
+		 * this space in normal flow. Matches .nav-inner's 60px height plus
+		 * the nav's 1px border-bottom. */
+		padding-top: 61px;
 	}
 
 	/* ── NAV ──
 	 *
 	 * Frosted-glass nav.
 	 *
-	 * `backdrop-filter` applied directly to the sticky <header> was silently
-	 * being dropped by Chromium in this compositing setup (transparency
-	 * showed through, blur did not). The workaround: put the glass on a
-	 * ::before pseudo-element that fills the header, and let the header
-	 * itself stay background-transparent. The pseudo forms its own
-	 * compositing layer so `backdrop-filter` applies there reliably.
+	 * `backdrop-filter` is silently dropped by Chromium whenever the element
+	 * (or an ancestor) uses `position: sticky` in this compositing setup —
+	 * the tint still shows but the blur never renders, verified by toggling
+	 * `backdrop-filter` on/off and seeing identical output. `position: fixed`
+	 * does not have this problem, so the nav is fixed instead, with `main`
+	 * padded by its height so content doesn't start out hidden beneath it.
+	 *
+	 * The glass itself still lives on a ::before pseudo-element rather than
+	 * directly on the header, which lets the header stay background-
+	 * transparent while the pseudo forms its own compositing layer.
 	 * `isolation: isolate` on the header keeps the pseudo's z-index: -1
 	 * from escaping and hiding the whole nav behind the page.
 	 */
 	.nav-bar {
-		position: sticky;
+		position: fixed;
 		top: 0;
+		left: 0;
+		right: 0;
 		z-index: 100;
 		background: transparent;
 		border-bottom: 1px solid var(--nav-border);

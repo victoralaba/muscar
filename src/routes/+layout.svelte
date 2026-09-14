@@ -224,13 +224,17 @@
 		min-height: 100vh;
 		display: flex;
 		flex-direction: column;
-		/* `clip` (not `hidden`) prevents horizontal overflow without creating
-		 * a scroll containing block, which is what would otherwise trap
-		 * descendant `position: sticky` elements (Scrolly's sticky visual). */
-		overflow-x: clip;
+		/* `overflow: clip` here would apply paint containment to the whole
+		 * layout and neutralize the nav's `backdrop-filter`. The horizontal
+		 * overflow clip lives on `main` (below) instead, where it still
+		 * catches Scrolly's break-out width without wrapping the nav. */
 		transition:
 			background 0.25s ease,
 			color 0.25s ease;
+	}
+	main {
+		flex: 1;
+		overflow-x: clip;
 	}
 
 	/* ── NAV ── */
@@ -238,15 +242,19 @@
 		position: sticky;
 		top: 0;
 		z-index: 100;
-		background: var(--nav-bg);
 		/*
-		 * Frosted-glass nav: stronger blur so page content actually shows
-		 * through as a soft wash, saturate to keep colors vivid rather than
-		 * grey, and a hairline top border of subtle contrast that catches
-		 * light like the edge of a pane of glass.
+		 * Frosted-glass nav. Two layers of background:
+		 *   1) A diagonal "sheen" gradient that catches light on the top-left,
+		 *      the way real glass panes do.
+		 *   2) The base tinted color at low alpha so the content behind the
+		 *      nav actually shows through the blur.
+		 * `backdrop-filter: blur(...) saturate(...)` is what turns the pass-through
+		 * into a frosted look; saturate is the ingredient that keeps colors from
+		 * greying out.
 		 */
-		backdrop-filter: blur(20px) saturate(160%);
-		-webkit-backdrop-filter: blur(20px) saturate(160%);
+		background: linear-gradient(180deg, var(--nav-bg-sheen), transparent 55%), var(--nav-bg);
+		backdrop-filter: blur(24px) saturate(180%);
+		-webkit-backdrop-filter: blur(24px) saturate(180%);
 		border-bottom: 1px solid var(--nav-border);
 		box-shadow: inset 0 1px 0 var(--nav-border);
 		animation: nav-shadow linear both;

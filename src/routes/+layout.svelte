@@ -224,7 +224,10 @@
 		min-height: 100vh;
 		display: flex;
 		flex-direction: column;
-		overflow-x: hidden;
+		/* `clip` (not `hidden`) prevents horizontal overflow without creating
+		 * a scroll containing block, which is what would otherwise trap
+		 * descendant `position: sticky` elements (Scrolly's sticky visual). */
+		overflow-x: clip;
 		transition:
 			background 0.25s ease,
 			color 0.25s ease;

@@ -1,0 +1,14 @@
+{
+	"env": {
+		"GIT_AUTHOR_NAME": "Victor Alaba",
+		"GIT_AUTHOR_EMAIL": "230865606+victoralaba@users.noreply.github.com",
+		"GIT_COMMITTER_NAME": "Victor Alaba",
+		"GIT_COMMITTER_EMAIL": "230865606+victoralaba@users.noreply.github.com"
+	},
+	"includeCoAuthoredBy": false,
+	"attribution": {
+		"commit": "",
+		"pr": "",
+		"sessionUrl": false
+	}
+}

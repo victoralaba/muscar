@@ -49,7 +49,6 @@
 	setContext('muscar-theme', themeController);
 
 	let mobileMenuOpen = $state(false);
-	let navScrolled = $state(false);
 
 	function toggleMenu() {
 		mobileMenuOpen = !mobileMenuOpen;
@@ -71,17 +70,6 @@
 		themeController.setTheme(
 			savedTheme === 'light' || savedTheme === 'dark' ? savedTheme : prefersLight ? 'light' : 'dark'
 		);
-
-		// Toggle a `.scrolled` class on the nav so it can grow a border + shadow
-		// once the user scrolls. Done in JS on purpose: `animation-timeline: scroll()`
-		// on the nav promotes it into a compositor layer whose backdrop-filter can't
-		// sample the page below it — the tint renders but the blur silently no-ops.
-		const onScroll = () => {
-			navScrolled = window.scrollY > 4;
-		};
-		onScroll();
-		window.addEventListener('scroll', onScroll, { passive: true });
-		return () => window.removeEventListener('scroll', onScroll);
 	});
 </script>
 
@@ -100,7 +88,7 @@
 
 <div class="muscar-root" data-theme={themeController.theme}>
 	<!-- NAV -->
-	<header class="nav-bar" class:scrolled={navScrolled}>
+	<header class="nav-bar">
 		<div class="nav-inner container">
 			<a href="/" class="nav-logo" aria-label="Muscar home">
 				<img src={logo} alt="Muscar" class="site-logo" draggable="false" />
@@ -253,43 +241,15 @@
 		padding-top: 61px;
 	}
 
-	/* ── NAV ──
-	 *
-	 * Frosted-glass nav. Three rules keep the blur actually rendering:
-	 *
-	 * 1. The nav is `position: fixed`, not sticky. Chromium silently drops
-	 *    `backdrop-filter` on sticky elements in this compositing setup.
-	 * 2. `backdrop-filter` sits directly on `.nav-bar`, not on a pseudo.
-	 *    A `::before` with `z-index: -1` under `isolation: isolate` gets
-	 *    promoted to its own compositor layer that can't sample the page
-	 *    behind it, so the tint shows but the blur no-ops.
-	 * 3. No `animation-timeline: scroll()` on the nav. A scroll-driven
-	 *    animation on the same element also promotes it to a compositor
-	 *    layer whose backdrop-filter renders empty — same "tint but no
-	 *    blur" failure. Shadow/border on scroll is driven by a JS listener
-	 *    that toggles `.scrolled` instead (see the layout script).
-	 *
-	 * `main` is padded by the nav's height so content isn't hidden under it
-	 * on load.
-	 */
+	/* ── NAV ── plain opaque header, fixed to the top. */
 	.nav-bar {
 		position: fixed;
 		top: 0;
 		left: 0;
 		right: 0;
 		z-index: 100;
-		background: linear-gradient(180deg, var(--nav-bg-sheen), transparent 55%), var(--nav-bg);
-		backdrop-filter: blur(24px) saturate(180%);
-		-webkit-backdrop-filter: blur(24px) saturate(180%);
-		border-bottom: 1px solid transparent;
-		box-shadow: 0 0 0 rgba(0, 0, 0, 0);
-		transition:
-			border-bottom-color 0.2s ease,
-			box-shadow 0.2s ease;
-	}
-	.nav-bar.scrolled {
-		border-bottom-color: var(--nav-border);
-		box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+		background: var(--bg);
+		border-bottom: 1px solid var(--nav-border);
 	}
 	.nav-inner {
 		display: flex;

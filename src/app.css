@@ -35,7 +35,8 @@
 		--bg-border-strong: #60666d;
 		--surface-soft: rgba(255, 255, 255, 0.04);
 		--surface-hover: rgba(255, 255, 255, 0.06);
-		--nav-bg: rgba(16, 15, 17, 0.85);
+		--nav-bg: rgba(16, 15, 17, 0.55);
+		--nav-border: rgba(255, 255, 255, 0.08);
 		--grid-line: rgba(255, 255, 255, 0.03);
 		--button-ink: #100f11;
 		--accent: #fc946d;
@@ -58,7 +59,8 @@
 		--bg-border-strong: #60666d;
 		--surface-soft: rgba(16, 15, 17, 0.045);
 		--surface-hover: rgba(16, 15, 17, 0.075);
-		--nav-bg: rgba(245, 244, 242, 0.86);
+		--nav-bg: rgba(245, 244, 242, 0.6);
+		--nav-border: rgba(16, 15, 17, 0.08);
 		--grid-line: rgba(16, 15, 17, 0.055);
 		--button-ink: #f5f4f2;
 		--accent: #782a0d;

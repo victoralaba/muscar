@@ -91,22 +91,25 @@
 		position: sticky;
 		top: 5rem;
 		align-self: start;
-		height: min(70vh, 480px);
+		/* Sticky sizes to its own content instead of a fixed height. Its
+		 * child (the workflow board or whatever visual the case supplies)
+		 * decides how tall it is, capped to the viewport so nothing scrolls
+		 * off screen when the visual is bigger than the viewport itself. */
+		max-height: calc(100vh - 6rem);
 		display: flex;
 		align-items: center;
 		justify-content: center;
 	}
 	.scrolly-visual {
 		width: 100%;
-		height: 100%;
 		background: var(--bg-card);
 		border: 1px solid var(--bg-border);
 		border-radius: var(--radius-lg);
 		padding: clamp(1rem, 2.5vw, 1.75rem);
 		display: flex;
-		align-items: center;
-		justify-content: center;
-		overflow: hidden;
+		flex-direction: column;
+		max-height: 100%;
+		overflow: auto;
 	}
 	.scrolly-steps {
 		display: flex;
@@ -151,7 +154,7 @@
 			 * beats) so viewers see the visual change as they scroll each
 			 * step, rather than losing it above the fold. */
 			top: 4.5rem;
-			height: clamp(240px, 45vh, 320px);
+			max-height: calc(100vh - 5.5rem);
 		}
 		.scrolly-steps {
 			gap: 2rem;

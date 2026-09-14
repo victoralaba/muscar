@@ -243,20 +243,18 @@
 
 	/* ── NAV ──
 	 *
-	 * Frosted-glass nav.
+	 * Frosted-glass nav. Two rules keep the blur actually rendering:
 	 *
-	 * `backdrop-filter` is silently dropped by Chromium whenever the element
-	 * (or an ancestor) uses `position: sticky` in this compositing setup —
-	 * the tint still shows but the blur never renders, verified by toggling
-	 * `backdrop-filter` on/off and seeing identical output. `position: fixed`
-	 * does not have this problem, so the nav is fixed instead, with `main`
-	 * padded by its height so content doesn't start out hidden beneath it.
+	 * 1. The nav is `position: fixed`, not sticky. Chromium silently drops
+	 *    `backdrop-filter` on sticky elements in this compositing setup.
+	 * 2. `backdrop-filter` sits directly on `.nav-bar`, not on a pseudo.
+	 *    A `::before` with `z-index: -1` under `isolation: isolate` gets
+	 *    promoted to its own compositor layer that can't sample the page
+	 *    behind it, so the tint shows but the blur no-ops. Direct on the
+	 *    fixed element, the sample source is the viewport underneath.
 	 *
-	 * The glass itself still lives on a ::before pseudo-element rather than
-	 * directly on the header, which lets the header stay background-
-	 * transparent while the pseudo forms its own compositing layer.
-	 * `isolation: isolate` on the header keeps the pseudo's z-index: -1
-	 * from escaping and hiding the whole nav behind the page.
+	 * `main` is padded by the nav's height so content isn't hidden under it
+	 * on load.
 	 */
 	.nav-bar {
 		position: fixed;
@@ -264,22 +262,12 @@
 		left: 0;
 		right: 0;
 		z-index: 100;
-		background: transparent;
-		border-bottom: 1px solid var(--nav-border);
-		isolation: isolate;
-		animation: nav-shadow linear both;
-		animation-timeline: scroll();
-	}
-	.nav-bar::before {
-		content: '';
-		position: absolute;
-		inset: 0;
-		z-index: -1;
 		background: linear-gradient(180deg, var(--nav-bg-sheen), transparent 55%), var(--nav-bg);
 		backdrop-filter: blur(24px) saturate(180%);
 		-webkit-backdrop-filter: blur(24px) saturate(180%);
-		box-shadow: inset 0 1px 0 var(--nav-border);
-		pointer-events: none;
+		border-bottom: 1px solid var(--nav-border);
+		animation: nav-shadow linear both;
+		animation-timeline: scroll();
 	}
 	@keyframes nav-shadow {
 		0% {

@@ -1,15 +1,21 @@
 import { fail, type ActionFailure } from '@sveltejs/kit';
 import postgres, { type JSONValue } from 'postgres';
-import { getEnvVar } from '$lib/server/env';
-import { getBrevoEnv, upsertBrevoContact } from '$lib/server/brevo';
-import { getTurnstileSecretKey, verifyTurnstileToken } from '$lib/server/turnstile';
-import { readUtm, utmToBrevoAttributes } from '$lib/server/utm';
+import {
+	getBrevoEnv,
+	getClientIp,
+	getTurnstileSecretKey,
+	readUtm,
+	upsertBrevoContact,
+	utmToBrevoAttributes,
+	verifyTurnstileToken
+} from '@victoralaba/muscar-core/server';
+import { readEnv } from '$lib/server/env';
 import { surveySections } from '$lib/survey/schema';
 import type { Actions } from './$types';
 
-const TRADE_OPTIONS = surveySections
-	.flatMap((section) => section.questions)
-	.find((q) => q.id === 'trade')?.options ?? [];
+const TRADE_OPTIONS =
+	surveySections.flatMap((section) => section.questions).find((q) => q.id === 'trade')?.options ??
+	[];
 
 interface SubmitPayload {
 	name: string;
@@ -17,10 +23,6 @@ interface SubmitPayload {
 	wantsReports: boolean;
 	answers: Record<string, unknown>;
 	otherValues: Record<string, string>;
-}
-
-function getDatabaseUrl(platform: App.Platform | undefined): string | undefined {
-	return getEnvVar(platform, 'DATABASE_URL');
 }
 
 /**
@@ -67,12 +69,13 @@ function failWith(error: string): ActionFailure<{ error: string }> {
 
 export const actions: Actions = {
 	submit: async ({ request, platform, cookies }) => {
-		const databaseUrl = getDatabaseUrl(platform);
+		const env = readEnv(platform);
+		const databaseUrl = env('DATABASE_URL');
 		if (!databaseUrl) {
 			return failWith('DATABASE_URL is not configured.');
 		}
 
-		const turnstileSecret = getTurnstileSecretKey(platform);
+		const turnstileSecret = getTurnstileSecretKey(env);
 		if (!turnstileSecret) {
 			return failWith('TURNSTILE_SECRET_KEY is not configured.');
 		}
@@ -88,15 +91,11 @@ export const actions: Actions = {
 			return fail(400, { error: 'Invalid payload.' });
 		}
 
-		const forwarded =
-			request.headers.get('cf-connecting-ip') ?? request.headers.get('x-forwarded-for');
-		const submittedIp = forwarded?.split(',')[0]?.trim() ?? null;
-
 		const turnstileToken = form.get('cf-turnstile-response');
 		const verified = await verifyTurnstileToken(
 			typeof turnstileToken === 'string' ? turnstileToken : null,
 			turnstileSecret,
-			submittedIp
+			getClientIp(request)
 		);
 		if (!verified) {
 			return fail(400, { error: 'Bot check failed — please retry.' });
@@ -117,7 +116,7 @@ export const actions: Actions = {
 					${payload.wantsReports},
 					${sql.json(payload.answers as JSONValue)},
 					${sql.json(payload.otherValues as JSONValue)},
-					${submittedIp},
+					${getClientIp(request)},
 					${utm.utm_source ?? null},
 					${utm.utm_medium ?? null},
 					${utm.utm_campaign ?? null},
@@ -135,7 +134,7 @@ export const actions: Actions = {
 		// shouldn't fail the survey submission itself — the response is
 		// already saved above — so we just log it.
 		if (payload.wantsReports) {
-			const brevo = getBrevoEnv(platform);
+			const brevo = getBrevoEnv(env);
 			if (brevo.apiKey) {
 				const result = await upsertBrevoContact({
 					apiKey: brevo.apiKey,

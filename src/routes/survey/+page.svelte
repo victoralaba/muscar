@@ -1,13 +1,14 @@
 <script lang="ts">
+	import { env } from '$env/dynamic/public';
 	import { enhance } from '$app/forms';
 	import type { ActionResult } from '@sveltejs/kit';
 	import { onMount } from 'svelte';
 	import { page } from '$app/state';
-	import { trackEvent, utmEventData } from '$lib/client/analytics';
+	import { trackEvent, utmEventData } from '@victoralaba/muscar-core/client';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import Drawer from '$lib/components/survey/Drawer.svelte';
 	import QuestionField from '$lib/components/survey/QuestionField.svelte';
-	import Turnstile from '$lib/components/Turnstile.svelte';
+	import Turnstile from '@victoralaba/muscar-core/Turnstile.svelte';
 	import { surveySections, TOTAL_STEPS } from '$lib/survey/schema';
 	import { loadSurveyState, saveSurveyState, clearSurveyState } from '$lib/survey/storage';
 	import {
@@ -296,6 +297,7 @@
 
 			<div class="turnstile-row">
 				<Turnstile
+					siteKey={env.PUBLIC_TURNSTILE_SITE_KEY ?? ''}
 					onVerify={(token) => (turnstileToken = token)}
 					onExpire={() => (turnstileToken = '')}
 				/>

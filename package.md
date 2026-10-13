@@ -1,6 +1,8 @@
 # Shared package plan: `@victoralaba/muscar-core`
 
-Status: planned, not started. Written so a later session can pick it up cold.
+Status: the package is scaffolded in `victoralaba/muscar_core` (branch `indigo/relaxed-newton-e7xqi8`,
+not yet on `main`, not yet published). Both sites still use their own copies. Written so a later
+session can pick it up cold.
 
 ## Why
 
@@ -69,26 +71,73 @@ include roughly 500 MB storage and 1 GB of downloads a month. Two small sites ar
 
 ## Steps for the next session
 
-Prerequisites, done by the user:
+Done:
 
-- [ ] Merge `muscar` PR #11 and `muscar_service` PR #1 so the work starts from clean `main` branches.
-- [ ] Approve creating `victoralaba/muscar_core` (or create it), then attach it to the session.
-- [ ] Create the classic token (`read:packages`) and add it as `NODE_AUTH_TOKEN` in both Cloudflare
-      projects.
+- [x] `muscar` PR #11 and `muscar_service` PR #1 merged.
+- [x] `muscar_core` created, scaffolded, and pushed on the branch above: env reader, Brevo, Turnstile,
+      UTM attribution, newsletter and unsubscribe handlers, analytics, the Turnstile component, 24
+      unit tests, CI and a publish workflow. `pnpm check`, `pnpm test` and `pnpm build` (with
+      publint) pass.
+- [x] Validated end to end on a scratch copy of `muscar_service`: installed the packed tarball,
+      migrated the code (recipe below), and `svelte-check` and `vite build` with the Cloudflare adapter
+      both passed. The package code (including the SQL) ends up in the worker bundle.
 
-Then:
+Still to do, in order:
 
-1. Scaffold `muscar_core` (`pnpm`, `@sveltejs/package`, `tsconfig`, `package.json` with `exports`,
-   `publishConfig.registry`, peer dependencies).
-2. Move the shared files over. Refactor `env.ts` to take the environment as input. Turn the
-   newsletter and unsubscribe actions into functions.
-3. Add the publish workflow, tag `v0.1.0`, and confirm the package appears under the repo's
-   Packages tab.
-4. In each site: add `.npmrc`, install the package, delete the duplicated files, rewrite the route
-   files as thin wrappers, update imports.
-5. Run `pnpm check` and `pnpm build` in both sites, then deploy a preview on Cloudflare and test
-   the newsletter signup, unsubscribe, and the attribution cookie.
-6. Update both READMEs. Their "Shared code" sections currently say the files are copied by hand.
+1. **`muscar_core` needs a `main` branch.** The repo was empty, so there is nothing to open a PR
+   against. The user should add an initial commit on `main` (for example "Add a README" on GitHub),
+   then rebase the scaffold branch onto it (`git rebase origin/main`) and open the PR.
+2. Merge that PR, then tag `v0.1.0` and push the tag. The `Publish` workflow publishes to GitHub
+   Packages. Confirm the package appears under the repo's Packages tab and is linked to the repo.
+3. Give the sites read access: on the package's settings page, add `muscar` and `muscar_service`
+   as repositories with read access (needed for their Actions and Dependabot).
+4. The user creates a classic personal access token with `read:packages` and adds it as
+   `NODE_AUTH_TOKEN` in both Cloudflare projects (build variables, encrypted).
+5. Migrate `muscar_service` first, then `muscar` (recipe below), one PR each. Cloudflare previews
+   will only build once step 4 is done.
+6. Enable Dependabot in both sites for the `@victoralaba` scope.
+7. Update both READMEs: their "Shared code" sections still say the files are copied by hand.
+
+## Migration recipe (validated on a scratch copy of muscar_service)
+
+In each site:
+
+1. Add `.npmrc` (see Pipeline above) and `pnpm add @victoralaba/muscar-core`.
+2. Delete `src/lib/server/{brevo,turnstile,utm}.ts`, `src/lib/components/Turnstile.svelte`,
+   `src/lib/client/analytics.ts`.
+3. Replace `src/lib/server/env.ts` with:
+
+   ```ts
+   import { env } from '$env/dynamic/private';
+   import { createEnvReader } from '@victoralaba/muscar-core/server';
+
+   /** Per-request env reader: `readEnv(platform)('KEY')`. */
+   export const readEnv = createEnvReader(() => env);
+   ```
+
+4. `src/hooks.server.ts`: call `captureUtm(url, cookies, { domain, persist, secure: !dev })` with
+   `domain: readEnv(event.platform)('COOKIE_DOMAIN')` and
+   `persist: !needsCookieConsent(event.request.headers.get('cf-ipcountry'))`.
+5. `+layout.server.ts`: read the env vars with `const env = readEnv(platform)` then `env('UMAMI_SCRIPT_URL')`
+   and so on.
+6. `/newsletter` and `/unsubscribe` `+page.server.ts` become thin wrappers over `subscribeToNewsletter`,
+   `loadUnsubscribePage` and `unsubscribeFromNewsletter`. Each returns `{ ok: true }` or
+   `{ ok: false, status, error }`, which the route turns into `fail(status, { error })`. See the
+   `muscar_core` README for an example.
+7. Contact (both sites) and the application form (`muscar_service` home) keep their own handlers
+   but import `getBrevoEnv`, `getClientIp`, `isValidEmail`, `formatUtmLine`, `readUtm`,
+   `sendTransactionalEmail`, `verifyTurnstileToken` and `getTurnstileSecretKey` from the package.
+   Pass `readEnv(platform)` instead of `platform`. `muscar`'s survey handler does the same.
+8. Pages: import `trackEvent` and `utmEventData` from `@victoralaba/muscar-core/client`. Import
+   `Turnstile` from `@victoralaba/muscar-core/Turnstile.svelte` and pass
+   `siteKey={env.PUBLIC_TURNSTILE_SITE_KEY ?? ''}` (`env` from `$env/dynamic/public`).
+9. `src/app.d.ts`: type `locals.utm` as `import('@victoralaba/muscar-core/server').UtmData` and delete
+   the `Window.turnstile` declaration (the package declares it).
+10. `pnpm check` and `pnpm build`, then test a preview: newsletter signup, unsubscribe by link and
+    by email, a contact message, the attribution cookie, and the EU skip (VPN to Germany).
+
+Notes from the scaffold: the handlers' bot-check error text is now "Bot check failed. Please
+retry." (em dash removed). `muscar`'s survey handler is not in the package.
 
 ## Current related setup (for context)
 

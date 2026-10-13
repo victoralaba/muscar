@@ -91,9 +91,8 @@ Still to do, in order:
 
 1. Confirm both sites have read access to the package (package settings, add `muscar` and
    `muscar_service` with read access). Needed for their Actions and Dependabot.
-2. The user creates a classic personal access token with `read:packages` and adds it as
-   `NODE_AUTH_TOKEN` in both Cloudflare projects (build variables, encrypted). Previews fail to
-   install until this is done.
+2. [x] `NODE_AUTH_TOKEN` added to the Cloudflare build variables (Production and Preview). The
+   first preview build failed with a 401 before it was set.
 3. Test a preview of each PR (list in recipe step 10), then merge.
 4. Enable Dependabot in both sites for the `@victoralaba` scope.
 

@@ -1,11 +1,12 @@
 <script lang="ts">
+	import { env } from '$env/dynamic/public';
 	import { enhance } from '$app/forms';
 	import type { ActionResult } from '@sveltejs/kit';
 	import { page } from '$app/state';
-	import { trackEvent, utmEventData } from '$lib/client/analytics';
+	import { trackEvent, utmEventData } from '@victoralaba/muscar-core/client';
 	import { Button } from '$lib/components/ui/button/index.js';
 	import { Badge } from '$lib/components/ui/badge/index.js';
-	import Turnstile from '$lib/components/Turnstile.svelte';
+	import Turnstile from '@victoralaba/muscar-core/Turnstile.svelte';
 	import {
 		IconMail,
 		IconSend,
@@ -201,6 +202,7 @@
 
 					<div class="nl-turnstile">
 						<Turnstile
+							siteKey={env.PUBLIC_TURNSTILE_SITE_KEY ?? ''}
 							onVerify={(token) => (turnstileToken = token)}
 							onExpire={() => (turnstileToken = '')}
 						/>

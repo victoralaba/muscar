@@ -1,8 +1,8 @@
 # Shared package plan: `@victoralaba/muscar-core`
 
-Status: the package is scaffolded in `victoralaba/muscar_core` (branch `indigo/relaxed-newton-e7xqi8`,
-not yet on `main`, not yet published). Both sites still use their own copies. Written so a later
-session can pick it up cold.
+Status: `@victoralaba/muscar-core` v0.1.0 is on `main` in `victoralaba/muscar_core` and published to
+GitHub Packages. Migration PRs are open: `muscar_service` PR #2 and `muscar` (this PR). Written so a
+later session can pick it up cold.
 
 ## Why
 
@@ -82,21 +82,19 @@ Done:
       migrated the code (recipe below), and `svelte-check` and `vite build` with the Cloudflare adapter
       both passed. The package code (including the SQL) ends up in the worker bundle.
 
+- [x] `muscar_core` has `main`; `v0.1.0` tagged and published (Publish run succeeded).
+- [x] Both sites migrated and READMEs updated: `muscar_service` PR #2, `muscar` PR (this one).
+      `svelte-check` and `vite build` pass in both against the package installed from the registry.
+      (`pnpm check` in `muscar` fails at `wrangler types --check`; that fails on the base commit too.)
+
 Still to do, in order:
 
-1. **`muscar_core` needs a `main` branch.** The repo was empty, so there is nothing to open a PR
-   against. The user should add an initial commit on `main` (for example "Add a README" on GitHub),
-   then rebase the scaffold branch onto it (`git rebase origin/main`) and open the PR.
-2. Merge that PR, then tag `v0.1.0` and push the tag. The `Publish` workflow publishes to GitHub
-   Packages. Confirm the package appears under the repo's Packages tab and is linked to the repo.
-3. Give the sites read access: on the package's settings page, add `muscar` and `muscar_service`
-   as repositories with read access (needed for their Actions and Dependabot).
-4. The user creates a classic personal access token with `read:packages` and adds it as
-   `NODE_AUTH_TOKEN` in both Cloudflare projects (build variables, encrypted).
-5. Migrate `muscar_service` first, then `muscar` (recipe below), one PR each. Cloudflare previews
-   will only build once step 4 is done.
-6. Enable Dependabot in both sites for the `@victoralaba` scope.
-7. Update both READMEs: their "Shared code" sections still say the files are copied by hand.
+1. Confirm both sites have read access to the package (package settings, add `muscar` and
+   `muscar_service` with read access). Needed for their Actions and Dependabot.
+2. [x] `NODE_AUTH_TOKEN` added to the Cloudflare build variables (Production and Preview). The
+   first preview build failed with a 401 before it was set.
+3. Test a preview of each PR (list in recipe step 10), then merge.
+4. Enable Dependabot in both sites for the `@victoralaba` scope.
 
 ## Migration recipe (validated on a scratch copy of muscar_service)
 

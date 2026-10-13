@@ -1,10 +1,11 @@
 <script lang="ts">
+	import { env } from '$env/dynamic/public';
 	import { enhance } from '$app/forms';
 	import { untrack } from 'svelte';
 	import type { ActionResult } from '@sveltejs/kit';
-	import { trackEvent } from '$lib/client/analytics';
+	import { trackEvent } from '@victoralaba/muscar-core/client';
 	import { Button } from '$lib/components/ui/button/index.js';
-	import Turnstile from '$lib/components/Turnstile.svelte';
+	import Turnstile from '@victoralaba/muscar-core/Turnstile.svelte';
 	import { IconMailOff, IconCheck, IconArrowLeft } from '@tabler/icons-svelte';
 	import type { PageProps } from './$types';
 
@@ -19,7 +20,9 @@
 	// If we arrived with a valid ?token= param that resolved to a real
 	// subscriber, skip straight to the confirmation step instead of making
 	// the person retype their email.
-	let stage: 'form' | 'confirm' | 'success' = $state(untrack(() => (data.token ? 'confirm' : 'form')));
+	let stage: 'form' | 'confirm' | 'success' = $state(
+		untrack(() => (data.token ? 'confirm' : 'form'))
+	);
 	let submitting = $state(false);
 	let errorMsg = $state('');
 	// Only the manual (no-token) path needs this — someone arriving via a
@@ -78,8 +81,8 @@
 					<span class="un-success-icon"><IconCheck size={22} /></span>
 					<p class="un-success-title">You're unsubscribed.</p>
 					<p class="un-success-body">
-						{email} won't get any more email from us. This can take a few minutes to fully
-						process on our end.
+						{email} won't get any more email from us. This can take a few minutes to fully process on
+						our end.
 					</p>
 					<Button href="/" variant="outline" class="un-home">
 						<IconArrowLeft size={15} />
@@ -144,6 +147,7 @@
 					</div>
 					<div class="un-turnstile">
 						<Turnstile
+							siteKey={env.PUBLIC_TURNSTILE_SITE_KEY ?? ''}
 							onVerify={(t) => (turnstileToken = t)}
 							onExpire={() => (turnstileToken = '')}
 						/>

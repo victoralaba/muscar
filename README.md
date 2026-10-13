@@ -50,3 +50,7 @@ Brevo newsletter list.
 These files are copies and must be kept in step by hand: `src/lib/server/{brevo,env,turnstile,utm}.ts`,
 `src/hooks.server.ts`, `src/routes/newsletter`, `src/routes/unsubscribe`, and
 `src/lib/components/Turnstile.svelte`. A fix in one needs the same fix in the other.
+
+## Cookies
+
+The only cookie we set is `muscar_utm`, which remembers the campaign link a visitor arrived from for 30 days. There is no consent banner, so the cookie is not set for visitors in the EU, EEA, UK, or Switzerland (detected from Cloudflare's `cf-ipcountry` header). See `needsCookieConsent` in `src/lib/server/utm.ts`.

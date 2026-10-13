@@ -29,9 +29,9 @@
 	<div class="lg-content container">
 		<p>
 			This Privacy Policy explains what information Muscar collects through this website, the
-			survey, and the newsletter, why we collect it, and what your options are. We keep this
-			short on purpose — we're not interested in collecting more than we need to run the survey
-			and send the newsletter.
+			survey, and the newsletter, why we collect it, and what your options are. We keep this short
+			on purpose — we're not interested in collecting more than we need to run the survey and send
+			the newsletter.
 		</p>
 
 		<h2>What we collect</h2>
@@ -67,14 +67,15 @@
 		<ul>
 			<li>
 				We use a self-hosted analytics tool (Umami) to see aggregate traffic and which campaigns
-				drive signups. It doesn't use third-party ad-tracking cookies and doesn't sell or share
-				data with ad networks. A first-party cookie may be set to remember campaign attribution
-				(e.g. which link you first arrived from) for up to 30 days.
+				drive signups. It doesn't use third-party ad-tracking cookies and doesn't sell or share data
+				with ad networks. A first-party cookie may be set to remember campaign attribution (e.g.
+				which link you first arrived from) for up to 30 days. We don't set this cookie for visitors
+				in the EU, EEA, UK, or Switzerland.
 			</li>
 		</ul>
 		<p>
-			We don't use third-party advertising trackers, and we don't sell your personal information
-			to anyone.
+			We don't use third-party advertising trackers, and we don't sell your personal information to
+			anyone.
 		</p>
 
 		<h2>How we use it</h2>
@@ -95,24 +96,24 @@
 		<p>We use a small number of service providers to run Muscar, each only for its stated job:</p>
 		<ul>
 			<li>
-				<strong>Brevo</strong> — our email and contact-management provider. Newsletter and
-				opted-in survey emails, plus contact-form messages, are processed through Brevo.
+				<strong>Brevo</strong> — our email and contact-management provider. Newsletter and opted-in survey
+				emails, plus contact-form messages, are processed through Brevo.
 			</li>
 			<li>
-				<strong>Cloudflare</strong> — hosts the site (Cloudflare Pages) and provides bot
-				protection (Turnstile) on our forms. Turnstile may set its own cookies as part of that
-				check; see Cloudflare's privacy policy for details on how it handles that data.
+				<strong>Cloudflare</strong> — hosts the site (Cloudflare Pages) and provides bot protection (Turnstile)
+				on our forms. Turnstile may set its own cookies as part of that check; see Cloudflare's privacy
+				policy for details on how it handles that data.
 			</li>
 		</ul>
 		<p>
-			We don't sell, rent, or otherwise share your personal information with third parties for
-			their own marketing purposes.
+			We don't sell, rent, or otherwise share your personal information with third parties for their
+			own marketing purposes.
 		</p>
 
 		<h2>How long we keep it</h2>
 		<p>
-			Survey and newsletter data is kept as long as it's useful for the purposes above, or until
-			you ask us to delete it. If you unsubscribe from the newsletter, we mark your record as
+			Survey and newsletter data is kept as long as it's useful for the purposes above, or until you
+			ask us to delete it. If you unsubscribe from the newsletter, we mark your record as
 			unsubscribed and stop emailing you; we may retain a minimal record (e.g. that the address
 			unsubscribed) to honor that choice and avoid re-adding you by mistake.
 		</p>
@@ -138,8 +139,8 @@
 
 		<h2>Changes to this policy</h2>
 		<p>
-			We may update this policy as the site or our tools change. Material changes will be
-			reflected by updating the "Last updated" date above.
+			We may update this policy as the site or our tools change. Material changes will be reflected
+			by updating the "Last updated" date above.
 		</p>
 
 		<h2>Contact</h2>

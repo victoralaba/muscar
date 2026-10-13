@@ -16,6 +16,8 @@
 		IconShieldCheck
 	} from '@tabler/icons-svelte';
 
+	const surveyHref = $derived(`${page.data.surveyUrl ?? ''}/survey`);
+
 	const niches = [
 		'HVAC',
 		'Plumbing',
@@ -123,6 +125,10 @@
 		<p class="nl-sub">
 			We're surveying trade business owners on what's real about AI and what's noise. This is where
 			the findings land — no pitch buried in the issue, no name required to keep reading.
+		</p>
+		<p class="nl-sub nl-survey">
+			The findings come from our survey of trade owners.
+			<a href={surveyHref}>Take the survey</a> if you haven't.
 		</p>
 
 		<div class="nl-card">
@@ -302,6 +308,16 @@
 		max-width: 480px;
 		margin: 1.1rem 0 0;
 		font-weight: 300;
+	}
+
+	.nl-survey {
+		margin-top: 0.6rem;
+		font-size: 0.95rem;
+	}
+	.nl-survey a {
+		color: var(--accent);
+		text-decoration: underline;
+		text-underline-offset: 3px;
 	}
 
 	/* ── FORM CARD ── */

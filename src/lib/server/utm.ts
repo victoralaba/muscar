@@ -41,10 +41,13 @@ function parseCookie(raw: string | undefined): UtmData {
  * email link still get credited when the person converts a few pages
  * later (e.g. lands on `/`, then submits the form on `/survey`).
  *
+ * Pass `domain` (e.g. `.muscar.app`) to share the cookie across subdomains so
+ * attribution survives a hop between the survey and services sites.
+ *
  * Called once per request from `hooks.server.ts` and stashed on
  * `event.locals.utm`.
  */
-export function captureUtm(url: URL, cookies: Cookies): UtmData {
+export function captureUtm(url: URL, cookies: Cookies, domain?: string): UtmData {
 	const fromUrl: UtmData = {};
 	for (const key of UTM_KEYS) {
 		const value = url.searchParams.get(key);
@@ -54,6 +57,7 @@ export function captureUtm(url: URL, cookies: Cookies): UtmData {
 	if (Object.keys(fromUrl).length > 0) {
 		cookies.set(COOKIE_NAME, JSON.stringify(fromUrl), {
 			path: '/',
+			...(domain ? { domain } : {}),
 			maxAge: MAX_AGE_SECONDS,
 			httpOnly: true,
 			sameSite: 'lax',

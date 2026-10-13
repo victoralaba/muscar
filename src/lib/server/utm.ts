@@ -41,19 +41,34 @@ function parseCookie(raw: string | undefined): UtmData {
  * email link still get credited when the person converts a few pages
  * later (e.g. lands on `/`, then submits the form on `/survey`).
  *
+ * Pass `domain` (e.g. `.muscar.app`) to share the cookie across subdomains so
+ * attribution survives a hop between the survey and services sites.
+ *
+ * Pass `persist: false` to skip the cookie entirely (see `needsCookieConsent`).
+ *
  * Called once per request from `hooks.server.ts` and stashed on
  * `event.locals.utm`.
  */
-export function captureUtm(url: URL, cookies: Cookies): UtmData {
+export function captureUtm(
+	url: URL,
+	cookies: Cookies,
+	{ domain, persist = true }: { domain?: string; persist?: boolean } = {}
+): UtmData {
 	const fromUrl: UtmData = {};
 	for (const key of UTM_KEYS) {
 		const value = url.searchParams.get(key);
 		if (value) fromUrl[key] = value;
 	}
 
+	// No consent banner, so in regions that require consent for non-essential cookies
+	// we neither read nor write the attribution cookie. UTM params on the current
+	// request are still returned for that one request.
+	if (!persist) return fromUrl;
+
 	if (Object.keys(fromUrl).length > 0) {
 		cookies.set(COOKIE_NAME, JSON.stringify(fromUrl), {
 			path: '/',
+			...(domain ? { domain } : {}),
 			maxAge: MAX_AGE_SECONDS,
 			httpOnly: true,
 			sameSite: 'lax',
@@ -84,4 +99,49 @@ export function utmToBrevoAttributes(utm: UtmData): Record<string, string> {
 	if (utm.utm_content) out.UTM_CONTENT = utm.utm_content;
 	if (utm.utm_term) out.UTM_TERM = utm.utm_term;
 	return out;
+}
+
+// ISO 3166-1 alpha-2 codes of the EU, the rest of the EEA, the UK, and Switzerland.
+const CONSENT_REGIONS = new Set([
+	'AT',
+	'BE',
+	'BG',
+	'HR',
+	'CY',
+	'CZ',
+	'DK',
+	'EE',
+	'FI',
+	'FR',
+	'DE',
+	'GR',
+	'HU',
+	'IE',
+	'IT',
+	'LV',
+	'LT',
+	'LU',
+	'MT',
+	'NL',
+	'PL',
+	'PT',
+	'RO',
+	'SK',
+	'SI',
+	'ES',
+	'SE',
+	'IS',
+	'LI',
+	'NO',
+	'GB',
+	'CH'
+]);
+
+/**
+ * True when the visitor is in a region where a non-essential cookie needs prior
+ * consent. `country` is Cloudflare's `cf-ipcountry` header; when it is missing
+ * (local dev) we assume no restriction.
+ */
+export function needsCookieConsent(country: string | null | undefined): boolean {
+	return !!country && CONSENT_REGIONS.has(country.toUpperCase());
 }

@@ -80,7 +80,7 @@ export const actions: Actions = {
 			toName: 'Muscar',
 			replyToEmail: email,
 			replyToName: name || undefined,
-			subject: `New contact form message from ${name || email}`,
+			subject: `[survey] New contact form message from ${name || email}`,
 			textContent: `Name: ${name || '(not given)'}\nEmail: ${email}\n\n${message}${utmLine}`
 		});
 

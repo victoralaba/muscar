@@ -1,13 +1,16 @@
 import { fail, type ActionFailure } from '@sveltejs/kit';
-import { getEnvVar } from '$lib/server/env';
-import { getBrevoEnv, sendTransactionalEmail } from '$lib/server/brevo';
-import { getTurnstileSecretKey, verifyTurnstileToken } from '$lib/server/turnstile';
-import { hasUtm, readUtm } from '$lib/server/utm';
+import {
+	formatUtmLine,
+	getBrevoEnv,
+	getClientIp,
+	getTurnstileSecretKey,
+	isValidEmail,
+	readUtm,
+	sendTransactionalEmail,
+	verifyTurnstileToken
+} from '@victoralaba/muscar-core/server';
+import { readEnv } from '$lib/server/env';
 import type { Actions } from './$types';
-
-function isValidEmail(v: string) {
-	return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim());
-}
 
 function failWith(status: 400 | 500, error: string): ActionFailure<{ error: string }> {
 	if (status === 500) console.error('[contact] send failed:', error);
@@ -16,17 +19,18 @@ function failWith(status: 400 | 500, error: string): ActionFailure<{ error: stri
 
 export const actions: Actions = {
 	send: async ({ request, platform, cookies }) => {
-		const brevo = getBrevoEnv(platform);
+		const env = readEnv(platform);
+		const brevo = getBrevoEnv(env);
 		if (!brevo.apiKey) {
 			return failWith(500, 'BREVO_API_KEY is not configured.');
 		}
 
-		const turnstileSecret = getTurnstileSecretKey(platform);
+		const turnstileSecret = getTurnstileSecretKey(env);
 		if (!turnstileSecret) {
 			return failWith(500, 'TURNSTILE_SECRET_KEY is not configured.');
 		}
 
-		const toEmail = getEnvVar(platform, 'CONTACT_EMAIL');
+		const toEmail = env('CONTACT_EMAIL');
 		if (!toEmail) {
 			return failWith(500, 'CONTACT_EMAIL is not configured.');
 		}
@@ -44,14 +48,10 @@ export const actions: Actions = {
 			return failWith(400, 'Please enter a message.');
 		}
 
-		const forwarded =
-			request.headers.get('cf-connecting-ip') ?? request.headers.get('x-forwarded-for');
-		const submittedIp = forwarded?.split(',')[0]?.trim() ?? null;
-
 		const verified = await verifyTurnstileToken(
 			typeof turnstileToken === 'string' ? turnstileToken : null,
 			turnstileSecret,
-			submittedIp
+			getClientIp(request)
 		);
 		if (!verified) {
 			return failWith(400, 'Bot check failed — please retry.');
@@ -60,17 +60,7 @@ export const actions: Actions = {
 		// No DB row for contact submissions, so the campaign that drove this
 		// message is only ever visible here — fold it into the email body.
 		const utm = readUtm(cookies);
-		const utmLine = hasUtm(utm)
-			? `\n\nCampaign: ${[
-					utm.utm_source && `source=${utm.utm_source}`,
-					utm.utm_medium && `medium=${utm.utm_medium}`,
-					utm.utm_campaign && `campaign=${utm.utm_campaign}`,
-					utm.utm_content && `content=${utm.utm_content}`,
-					utm.utm_term && `term=${utm.utm_term}`
-				]
-					.filter(Boolean)
-					.join(', ')}`
-			: '';
+		const utmLine = formatUtmLine(utm);
 
 		const result = await sendTransactionalEmail({
 			apiKey: brevo.apiKey,

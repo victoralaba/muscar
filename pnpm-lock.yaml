@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      '@victoralaba/muscar-core':
+        specifier: ^0.1.0
+        version: 0.1.0(@sveltejs/kit@2.61.1(@sveltejs/vite-plugin-svelte@7.1.2(svelte@5.55.10(@typescript-eslint/types@8.60.0))(vite@8.0.14(@types/node@24.12.4)(esbuild@0.27.3)(jiti@2.7.0)))(svelte@5.55.10(@typescript-eslint/types@8.60.0))(typescript@6.0.3)(vite@8.0.14(@types/node@24.12.4)(esbuild@0.27.3)(jiti@2.7.0)))(postgres@3.4.9)(svelte@5.55.10(@typescript-eslint/types@8.60.0))
       postgres:
         specifier: ^3.4.9
         version: 3.4.9
@@ -918,6 +921,13 @@ packages:
   '@typescript-eslint/visitor-keys@8.60.0':
     resolution: {integrity: sha512-9WI52t8ZGLVGrPMBet25yAftqY/n95+zmoUUtJBBQTKDSKUu7OsPTroT2op7U9JatkoRccL0YkWDNMFfC4Sjxg==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
+
+  '@victoralaba/muscar-core@0.1.0':
+    resolution: {integrity: sha512-gcB4zJcAIzETG5MaeU6fc1Id9ZfhyM1Up2hMU6OKt5cWtYcV57WYoSU5kNd8BNvNl35mQUgz9P14WguQ8NSZrw==, tarball: https://npm.pkg.github.com/download/@victoralaba/muscar-core/0.1.0/2445df3f7ae82e872b29a027937973eff861c522}
+    peerDependencies:
+      '@sveltejs/kit': ^2.57.0
+      postgres: ^3.4.9
+      svelte: ^5.55.2
 
   acorn-jsx@5.3.2:
     resolution: {integrity: sha512-rq9s+JNhf0IChjtDXxllJ7g41oZk5SlXtp0LHwyA5cejwn7vKmKp4pPri6YEePv2PU65sAsegbXtIinmDFDXgQ==}
@@ -2460,6 +2470,12 @@ snapshots:
     dependencies:
       '@typescript-eslint/types': 8.60.0
       eslint-visitor-keys: 5.0.1
+
+  '@victoralaba/muscar-core@0.1.0(@sveltejs/kit@2.61.1(@sveltejs/vite-plugin-svelte@7.1.2(svelte@5.55.10(@typescript-eslint/types@8.60.0))(vite@8.0.14(@types/node@24.12.4)(esbuild@0.27.3)(jiti@2.7.0)))(svelte@5.55.10(@typescript-eslint/types@8.60.0))(typescript@6.0.3)(vite@8.0.14(@types/node@24.12.4)(esbuild@0.27.3)(jiti@2.7.0)))(postgres@3.4.9)(svelte@5.55.10(@typescript-eslint/types@8.60.0))':
+    dependencies:
+      '@sveltejs/kit': 2.61.1(@sveltejs/vite-plugin-svelte@7.1.2(svelte@5.55.10(@typescript-eslint/types@8.60.0))(vite@8.0.14(@types/node@24.12.4)(esbuild@0.27.3)(jiti@2.7.0)))(svelte@5.55.10(@typescript-eslint/types@8.60.0))(typescript@6.0.3)(vite@8.0.14(@types/node@24.12.4)(esbuild@0.27.3)(jiti@2.7.0))
+      postgres: 3.4.9
+      svelte: 5.55.10(@typescript-eslint/types@8.60.0)
 
   acorn-jsx@5.3.2(acorn@8.16.0):
     dependencies:

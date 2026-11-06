@@ -134,7 +134,7 @@
 
 		<p class="hero-lead anim-up">We're asking</p>
 		<p class="hero-number anim-up d1" aria-label="500+">500+</p>
-		<p class="hero-lead-after anim-up d2">blue-collar business owners one question.</p>
+		<p class="hero-lead-after anim-up d2">trade business owners one question.</p>
 
 		<h1 id="hero-hl" class="hero-headline anim-up d3">
 			What's real about AI —<br />
